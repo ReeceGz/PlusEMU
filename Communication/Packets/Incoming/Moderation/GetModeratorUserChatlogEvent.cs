@@ -4,6 +4,7 @@ using Plus.Database;
 using Plus.HabboHotel.GameClients;
 using Plus.HabboHotel.Rooms;
 using Plus.HabboHotel.Rooms.Chat.Logs;
+using Plus.HabboHotel.Users.UserData;
 using Plus.Utilities;
 
 namespace Plus.Communication.Packets.Incoming.Moderation;
@@ -13,19 +14,21 @@ internal class GetModeratorUserChatlogEvent : IPacketEvent
     public readonly IChatlogManager _chatlogManager;
     public readonly IDatabase _database;
     private readonly IRoomDataLoader _roomDataLoader;
+    private readonly IUserDataFactory _userDataFactory;
 
-    public GetModeratorUserChatlogEvent(IChatlogManager chatlogManager, IDatabase database, IRoomDataLoader roomDataLoader)
+    public GetModeratorUserChatlogEvent(IChatlogManager chatlogManager, IDatabase database, IRoomDataLoader roomDataLoader, IUserDataFactory userDataFactory)
     {
         _chatlogManager = chatlogManager;
         _database = database;
         _roomDataLoader = roomDataLoader;
+        _userDataFactory = userDataFactory;
     }
 
     public Task Parse(GameClient session, IIncomingPacket packet)
     {
         if (!session.GetHabbo().Permissions.HasRight("mod_tool"))
             return Task.CompletedTask;
-        var data = PlusEnvironment.GetHabboById(packet.ReadInt());
+        var data = _userDataFactory.GetUserDataByIdAsync(packet.ReadInt()).Result;
         if (data == null)
         {
             session.SendNotification("Unable to load info for user.");
@@ -61,7 +64,7 @@ internal class GetModeratorUserChatlogEvent : IPacketEvent
         {
             foreach (DataRow row in data.Rows)
             {
-                var habbo = PlusEnvironment.GetHabboById(Convert.ToInt32(row["user_id"]));
+                var habbo = _userDataFactory.GetUserDataByIdAsync(Convert.ToInt32(row["user_id"])).Result;
                 if (habbo != null) chats.Add(new(Convert.ToInt32(row["user_id"]), roomData.Id, Convert.ToString(row["message"]), Convert.ToDouble(row["timestamp"]), habbo));
             }
         }

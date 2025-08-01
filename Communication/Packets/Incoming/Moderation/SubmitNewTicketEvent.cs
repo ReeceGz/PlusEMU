@@ -2,6 +2,7 @@
 using Plus.Database;
 using Plus.HabboHotel.GameClients;
 using Plus.HabboHotel.Moderation;
+using Plus.HabboHotel.Users.UserData;
 using Plus.Utilities;
 
 namespace Plus.Communication.Packets.Incoming.Moderation;
@@ -11,12 +12,14 @@ internal class SubmitNewTicketEvent : IPacketEvent
     public readonly IModerationManager _moderationManager;
     public readonly IGameClientManager _clientManager;
     public readonly IDatabase _database;
+    private readonly IUserDataFactory _userDataFactory;
 
-    public SubmitNewTicketEvent(IModerationManager moderationManager, IGameClientManager clientManager, IDatabase database)
+    public SubmitNewTicketEvent(IModerationManager moderationManager, IGameClientManager clientManager, IDatabase database, IUserDataFactory userDataFactory)
     {
         _moderationManager = moderationManager;
         _clientManager = clientManager;
         _database = database;
+        _userDataFactory = userDataFactory;
     }
 
     public Task Parse(GameClient session, IIncomingPacket packet)
@@ -36,7 +39,7 @@ internal class SubmitNewTicketEvent : IPacketEvent
         var category = packet.ReadInt();
         var reportedUserId = packet.ReadInt();
         var type = packet.ReadInt(); // Unsure on what this actually is.
-        var reportedUser = PlusEnvironment.GetHabboById(reportedUserId);
+        var reportedUser = _userDataFactory.GetUserDataByIdAsync(reportedUserId).Result;
         if (reportedUser == null)
         {
             // User doesn't exist.
