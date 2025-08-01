@@ -1,4 +1,5 @@
 ﻿using Plus.Communication.Packets.Outgoing.FriendList;
+using Plus.Core.Settings;
 using Plus.HabboHotel.Friends;
 using Plus.HabboHotel.GameClients;
 using Plus.HabboHotel.Users.Messenger;
@@ -8,16 +9,18 @@ namespace Plus.Communication.Packets.Incoming.FriendList;
 internal class MessengerInitEvent : IPacketEvent
 {
     private readonly IMessengerDataLoader _messengerDataLoader;
+    private readonly ISettingsManager _settingsManager;
 
-    public MessengerInitEvent(IMessengerDataLoader messengerDataLoader)
+    public MessengerInitEvent(IMessengerDataLoader messengerDataLoader, ISettingsManager settingsManager)
     {
         _messengerDataLoader = messengerDataLoader;
+        _settingsManager = settingsManager;
     }
 
     public async Task Parse(GameClient session, IIncomingPacket packet)
     {
         var friends = session.GetHabbo().Messenger.Friends.Values.ToList();
-        session.Send(new MessengerInitComposer());
+        session.Send(new MessengerInitComposer(_settingsManager));
         var page = 0;
         if (!friends.Any())
             session.Send(new BuddyListComposer(friends, 1, 0));

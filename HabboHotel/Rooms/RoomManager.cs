@@ -14,6 +14,7 @@ public class RoomManager : IRoomManager
     private readonly ILogger<RoomManager> _logger;
     private readonly IDatabase _database;
     private readonly ILanguageManager _languageManager;
+    private readonly IRoomDataLoader _roomDataLoader;
 
     private readonly object _roomLoadingSync;
 
@@ -24,11 +25,12 @@ public class RoomManager : IRoomManager
     private DateTime _cycleLastExecution;
 
 
-    public RoomManager(ILogger<RoomManager> logger, IDatabase database, ILanguageManager languageManager)
+    public RoomManager(ILogger<RoomManager> logger, IDatabase database, ILanguageManager languageManager, IRoomDataLoader roomDataLoader)
     {
         _logger = logger;
         _database = database;
         _languageManager = languageManager;
+        _roomDataLoader = roomDataLoader;
         _roomModels = new();
         _rooms = new();
         _roomLoadingSync = new();
@@ -170,7 +172,7 @@ public class RoomManager : IRoomManager
                 room = null;
                 return false;
             }
-            if (!RoomFactory.TryGetData(roomId, out var data))
+            if (!_roomDataLoader.TryGetData(roomId, out var data))
             {
                 room = null;
                 return false;
