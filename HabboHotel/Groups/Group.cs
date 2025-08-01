@@ -1,10 +1,12 @@
 ﻿using System.Data;
+using Plus.Database;
 using Plus.HabboHotel.Rooms;
 
 namespace Plus.HabboHotel.Groups;
 
 public class Group
 {
+    private readonly IDatabase _database;
     private readonly List<int> _administrators;
     private readonly List<int> _members;
     private readonly List<int> _requests;
@@ -12,8 +14,9 @@ public class Group
     private RoomData _room;
     public bool HasForum;
 
-    public Group(int id, string name, string description, string badge, uint roomId, int owner, int time, int type, int colour1, int colour2, int adminOnlyDeco, bool hasForum)
+    public Group(int id, string name, string description, string badge, uint roomId, int owner, int time, int type, int colour1, int colour2, int adminOnlyDeco, bool hasForum, IDatabase database)
     {
+        _database = database;
         Id = id;
         Name = name;
         Description = description;
@@ -68,7 +71,7 @@ public class Group
 
     public void InitMembers()
     {
-        using var dbClient = PlusEnvironment.DatabaseManager.GetQueryReactor();
+        using var dbClient = _database.GetQueryReactor();
         dbClient.SetQuery("SELECT `user_id`, `rank` FROM `group_memberships` WHERE `group_id` = @id");
         dbClient.AddParameter("id", Id);
         var members = dbClient.GetTable();
@@ -115,7 +118,7 @@ public class Group
     {
         if (_members.Contains(id))
             _members.Remove(id);
-        using (var dbClient = PlusEnvironment.DatabaseManager.GetQueryReactor())
+        using (var dbClient = _database.GetQueryReactor())
         {
             dbClient.SetQuery("UPDATE group_memberships SET `rank` = '1' WHERE `user_id` = @uid AND `group_id` = @gid LIMIT 1");
             dbClient.AddParameter("gid", Id);
@@ -130,7 +133,7 @@ public class Group
     {
         if (!_administrators.Contains(userId))
             return;
-        using (var dbClient = PlusEnvironment.DatabaseManager.GetQueryReactor())
+        using (var dbClient = _database.GetQueryReactor())
         {
             dbClient.SetQuery("UPDATE group_memberships SET `rank` = '0' WHERE user_id = @uid AND group_id = @gid");
             dbClient.AddParameter("gid", Id);
@@ -145,7 +148,7 @@ public class Group
     {
         if (IsMember(id) || Type == GroupType.Locked && _requests.Contains(id))
             return;
-        using var dbClient = PlusEnvironment.DatabaseManager.GetQueryReactor();
+        using var dbClient = _database.GetQueryReactor();
         if (IsAdmin(id))
         {
             dbClient.SetQuery("UPDATE `group_memberships` SET `rank` = '0' WHERE user_id = @uid AND group_id = @gid");
@@ -181,7 +184,7 @@ public class Group
         }
         else
             return;
-        using var dbClient = PlusEnvironment.DatabaseManager.GetQueryReactor();
+        using var dbClient = _database.GetQueryReactor();
         dbClient.SetQuery("DELETE FROM group_memberships WHERE user_id=@uid AND group_id=@gid LIMIT 1");
         dbClient.AddParameter("gid", Id);
         dbClient.AddParameter("uid", id);
@@ -190,7 +193,7 @@ public class Group
 
     public void HandleRequest(int id, bool accepted)
     {
-        using (var dbClient = PlusEnvironment.DatabaseManager.GetQueryReactor())
+        using (var dbClient = _database.GetQueryReactor())
         {
             if (accepted)
             {

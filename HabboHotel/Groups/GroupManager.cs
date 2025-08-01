@@ -98,7 +98,7 @@ public class GroupManager : IGroupManager
                     Convert.ToInt32(row["id"]), Convert.ToString(row["name"]), Convert.ToString(row["desc"]), Convert.ToString(row["badge"]), Convert.ToUInt32(row["room_id"]),
                     Convert.ToInt32(row["owner_id"]),
                     Convert.ToInt32(row["created"]), Convert.ToInt32(row["state"]), Convert.ToInt32(row["colour1"]), Convert.ToInt32(row["colour2"]), Convert.ToInt32(row["admindeco"]),
-                    Convert.ToInt32(row["forum_enabled"]) == 1);
+                    Convert.ToInt32(row["forum_enabled"]) == 1, _database);
                 _groups.TryAdd(group.Id, group);
                 return true;
             }
@@ -108,7 +108,7 @@ public class GroupManager : IGroupManager
 
     public bool TryCreateGroup(Habbo player, string name, string description, uint roomId, string badge, int colour1, int colour2, out Group @group)
     {
-        group = new(0, name, description, badge, roomId, player.Id, (int)UnixTimestamp.GetNow(), 0, colour1, colour2, 0, false);
+        group = new(0, name, description, badge, roomId, player.Id, (int)UnixTimestamp.GetNow(), 0, colour1, colour2, 0, false, _database);
         if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(badge))
             return false;
         using var dbClient = _database.GetQueryReactor();
