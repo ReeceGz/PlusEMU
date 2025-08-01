@@ -157,7 +157,7 @@ public sealed class ModerationManager : IModerationManager
                     var ban = new ModerationBan(BanTypeUtility.GetModerationBanType(type), value, reason, expires);
                     if (ban != null)
                     {
-                        if (expires > PlusEnvironment.GetUnixTimestamp())
+                        if (expires > DateTimeOffset.UtcNow.ToUnixTimeSeconds())
                         {
                             if (!_bans.ContainsKey(value))
                                 _bans.Add(value, ban);
@@ -198,7 +198,7 @@ public sealed class ModerationManager : IModerationManager
                     var ban = new ModerationBan(BanTypeUtility.GetModerationBanType(type), value, reason, expires);
                     if (ban != null)
                     {
-                        if (expires > PlusEnvironment.GetUnixTimestamp())
+                        if (expires > DateTimeOffset.UtcNow.ToUnixTimeSeconds())
                         {
                             if (!_bans.ContainsKey(value))
                                 _bans.Add(value, ban);
@@ -222,7 +222,7 @@ public sealed class ModerationManager : IModerationManager
         using (var dbClient = _database.GetQueryReactor())
         {
             dbClient.SetQuery(
-                $"REPLACE INTO `bans` (`bantype`, `value`, `reason`, `expire`, `added_by`,`added_date`) VALUES ('{banType}', '{banValue}', @reason, {expireTimestamp}, '{mod}', '{PlusEnvironment.GetUnixTimestamp()}');");
+                $"REPLACE INTO `bans` (`bantype`, `value`, `reason`, `expire`, `added_by`,`added_date`) VALUES ('{banType}', '{banValue}', @reason, {expireTimestamp}, '{mod}', '{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}');");
             dbClient.AddParameter("reason", reason);
             dbClient.RunQuery();
         }

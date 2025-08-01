@@ -94,7 +94,7 @@ internal class MessengerDataLoader : IMessengerDataLoader
     public async Task<Dictionary<int, List<(string Message, int SecondsAgo)>>> GetAndDeleteOfflineMessages(int userId)
     {
         using var connection = _database.Connection();
-        var messages = (await connection.QueryAsync<(int, string, int)>("SELECT from_id, message, timestamp FROM messenger_offline_messages WHERE to_id = @userId", new { userId })).GroupBy(r => r.Item1).ToDictionary(r => r.Key, r => r.OrderBy(r => r.Item3).Select(g => (g.Item2, (int)(PlusEnvironment.Now() - g.Item3))).ToList());
+        var messages = (await connection.QueryAsync<(int, string, int)>("SELECT from_id, message, timestamp FROM messenger_offline_messages WHERE to_id = @userId", new { userId })).GroupBy(r => r.Item1).ToDictionary(r => r.Key, r => r.OrderBy(r => r.Item3).Select(g => (g.Item2, (int)(DateTimeOffset.UtcNow.ToUnixTimeSeconds() - g.Item3))).ToList());
         await connection.ExecuteAsync("DELETE FROM messenger_offline_messages WHERE to_id = @userId", new { userId });
         return messages;
     }
