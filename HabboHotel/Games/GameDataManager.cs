@@ -38,7 +38,7 @@ public class GameDataManager : IGameDataManager
                         new(Convert.ToInt32(row["id"]), Convert.ToString(row["name"]), Convert.ToString(row["colour_one"]), Convert.ToString(row["colour_two"]),
                             Convert.ToString(row["resource_path"]), Convert.ToString(row["string_three"]), Convert.ToString(row["game_swf"]), Convert.ToString(row["game_assets"]),
                             Convert.ToString(row["game_server_host"]), Convert.ToString(row["game_server_port"]), Convert.ToString(row["socket_policy_port"]),
-                           PlusEnvironment.EnumToBool(row["game_enabled"].ToString())));
+                           row["game_enabled"].ToString() == "1"));
                 }
             }
         }

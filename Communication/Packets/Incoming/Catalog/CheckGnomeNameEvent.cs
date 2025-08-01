@@ -57,7 +57,7 @@ internal class CheckGnomeNameEvent : RoomPacketEvent
         session.Send(new CheckGnomeNameComposer(petName, 0));
 
         //Create the pet here.
-        var pet = PetUtility.CreatePet(session.GetHabbo().Id, petName, 26, "30", "ffffff");
+        var pet = PetUtility.CreatePet(_database, session.GetHabbo().Id, petName, 26, "30", "ffffff");
         if (pet == null)
         {
             session.SendNotification("Oops, an error occoured. Please report this!");

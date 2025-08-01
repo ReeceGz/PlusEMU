@@ -332,7 +332,7 @@ public class PurchaseFromCatalogEvent : IPacketEvent
             case "p":
             {
                 var petData = extraData.Split('\n');
-                var pet = PetUtility.CreatePet(session.GetHabbo().Id, petData[0], item.Definition.BehaviourData, petData[1], petData[2]);
+                var pet = PetUtility.CreatePet(_database, session.GetHabbo().Id, petData[0], item.Definition.BehaviourData, petData[1], petData[2]);
                 if (pet != null)
                 {
                     if (session.GetHabbo().Inventory.Pets.AddPet(pet))
