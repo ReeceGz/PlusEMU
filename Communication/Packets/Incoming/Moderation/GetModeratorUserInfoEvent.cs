@@ -10,11 +10,13 @@ internal class GetModeratorUserInfoEvent : IPacketEvent
 {
     private readonly ILanguageManager _languageManager;
     private readonly IDatabase _database;
+    private readonly IGameClientManager _clientManager;
 
-    public GetModeratorUserInfoEvent(ILanguageManager languageManager, IDatabase database)
+    public GetModeratorUserInfoEvent(ILanguageManager languageManager, IDatabase database, IGameClientManager clientManager)
     {
         _languageManager = languageManager;
         _database = database;
+        _clientManager = clientManager;
     }
 
     public Task Parse(GameClient session, IIncomingPacket packet)
@@ -42,7 +44,7 @@ internal class GetModeratorUserInfoEvent : IPacketEvent
                 info = dbClient.GetRow();
             }
         }
-        session.Send(new ModeratorUserInfoComposer(user, info));
+        session.Send(new ModeratorUserInfoComposer(user, info, _clientManager));
         return Task.CompletedTask;
     }
 }

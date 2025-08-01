@@ -96,7 +96,7 @@ internal class GetOffersEvent : IPacketEvent
                     dictionary2.Add(item.SpriteId, 1);
             }
         }
-        session.Send(new MarketPlaceOffersComposer(dictionary, dictionary2));
+        session.Send(new MarketPlaceOffersComposer(dictionary, dictionary2, _marketplaceManager));
         return Task.CompletedTask;
     }
 }
