@@ -9,10 +9,12 @@ public class RconConnection
     private static readonly ILogger Log = LogManager.GetLogger("Plus.Communication.Rcon.RconConnection");
     private byte[] _buffer = new byte[1024];
     private Socket _socket;
+    private readonly IRconSocket _rconSocket;
 
-    public RconConnection(Socket socket)
+    public RconConnection(Socket socket, IRconSocket rconSocket)
     {
         _socket = socket;
+        _rconSocket = rconSocket;
         try
         {
             _socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, OnCallBack, _socket);
@@ -33,7 +35,7 @@ public class RconConnection
                 return;
             }
             var data = Encoding.Default.GetString(_buffer, 0, bytes);
-            if (!PlusEnvironment.RconSocket.GetCommands().Parse(data)) Log.Error($"Failed to execute a MUS command. Raw data: {data}");
+            if (!_rconSocket.GetCommands().Parse(data)) Log.Error($"Failed to execute a MUS command. Raw data: {data}");
         }
         catch (Exception e)
         {
