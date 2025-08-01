@@ -27,7 +27,7 @@ internal class GetClubOffersEvent : IPacketEvent
             return Task.CompletedTask;
         var item = page.ItemOffers[offerId];
         if (item != null)
-            session.Send(new CatalogOfferComposer(item));
+            session.Send(new CatalogOfferComposer(item, _catalogManager));
         return Task.CompletedTask;
     }
 }
