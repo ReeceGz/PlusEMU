@@ -5,6 +5,8 @@ using Plus.Core;
 using Plus.Core.Language;
 using Plus.Database;
 using Plus.HabboHotel.GameClients;
+using Plus.HabboHotel.Groups;
+using Plus.HabboHotel.Users.UserData;
 using Plus.Utilities;
 
 namespace Plus.HabboHotel.Rooms;
@@ -15,6 +17,8 @@ public class RoomManager : IRoomManager
     private readonly IDatabase _database;
     private readonly ILanguageManager _languageManager;
     private readonly IRoomDataLoader _roomDataLoader;
+    private readonly IGroupManager _groupManager;
+    private readonly IUserDataFactory _userDataFactory;
 
     private readonly object _roomLoadingSync;
 
@@ -25,12 +29,14 @@ public class RoomManager : IRoomManager
     private DateTime _cycleLastExecution;
 
 
-    public RoomManager(ILogger<RoomManager> logger, IDatabase database, ILanguageManager languageManager, IRoomDataLoader roomDataLoader)
+    public RoomManager(ILogger<RoomManager> logger, IDatabase database, ILanguageManager languageManager, IRoomDataLoader roomDataLoader, IGroupManager groupManager, IUserDataFactory userDataFactory)
     {
         _logger = logger;
         _database = database;
         _languageManager = languageManager;
         _roomDataLoader = roomDataLoader;
+        _groupManager = groupManager;
+        _userDataFactory = userDataFactory;
         _roomModels = new();
         _rooms = new();
         _roomLoadingSync = new();
@@ -177,7 +183,7 @@ public class RoomManager : IRoomManager
                 room = null;
                 return false;
             }
-            var myInstance = new Room(data, _database);
+            var myInstance = new Room(data, _database, _groupManager, _userDataFactory);
             if (_rooms.TryAdd(roomId, myInstance))
             {
                 room = myInstance;

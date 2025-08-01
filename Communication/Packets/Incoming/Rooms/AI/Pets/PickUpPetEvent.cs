@@ -3,6 +3,8 @@ using Plus.Communication.Packets.Outgoing.Rooms.Engine;
 using Plus.Database;
 using Plus.HabboHotel.GameClients;
 using Plus.HabboHotel.Rooms;
+using Plus.HabboHotel.Groups;
+using Plus.HabboHotel.Users.UserData;
 
 namespace Plus.Communication.Packets.Incoming.Rooms.AI.Pets;
 
@@ -10,11 +12,15 @@ internal class PickUpPetEvent : RoomPacketEvent
 {
     private readonly IGameClientManager _clientManager;
     private readonly IDatabase _database;
+    private readonly IGroupManager _groupManager;
+    private readonly IUserDataFactory _userDataFactory;
 
-    public PickUpPetEvent(IGameClientManager clientManager, IDatabase database)
+    public PickUpPetEvent(IGameClientManager clientManager, IDatabase database, IGroupManager groupManager, IUserDataFactory userDataFactory)
     {
         _clientManager = clientManager;
         _database = database;
+        _groupManager = groupManager;
+        _userDataFactory = userDataFactory;
     }
 
     public override Task Parse(Room room, GameClient session, IIncomingPacket packet)
@@ -42,7 +48,7 @@ internal class PickUpPetEvent : RoomPacketEvent
             room.SendPacket(new UserRemoveComposer(targetUser.VirtualId));
 
             //Add the new one, they won't even notice a thing!!11 8-)
-            room.SendPacket(new UsersComposer(targetUser));
+            room.SendPacket(new UsersComposer(targetUser, _groupManager, _userDataFactory));
             return Task.CompletedTask;
         }
         if (session.GetHabbo().Id != pet.PetData.OwnerId && !room.CheckRights(session, true))
