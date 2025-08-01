@@ -13,13 +13,15 @@ internal class DeleteGroupEvent : IPacketEvent
     private readonly IDatabase _database;
     private readonly IRoomManager _roomManager;
     private readonly ISettingsManager _settingsManager;
+    private readonly IRoomDataLoader _roomDataLoader;
 
-    public DeleteGroupEvent(IGroupManager groupManager, IDatabase database, IRoomManager roomManager, ISettingsManager settingsManager)
+    public DeleteGroupEvent(IGroupManager groupManager, IDatabase database, IRoomManager roomManager, ISettingsManager settingsManager, IRoomDataLoader roomDataLoader)
     {
         _groupManager = groupManager;
         _database = database;
         _roomManager = roomManager;
         _settingsManager = settingsManager;
+        _roomDataLoader = roomDataLoader;
     }
     public Task Parse(GameClient session, IIncomingPacket packet)
     {
@@ -42,7 +44,7 @@ internal class DeleteGroupEvent : IPacketEvent
         }
         if (!_roomManager.TryGetRoom(group.RoomId, out var room))
             return Task.CompletedTask;
-        if (!RoomFactory.TryGetData(group.RoomId, out var _))
+        if (!_roomDataLoader.TryGetData(group.RoomId, out var _))
             return Task.CompletedTask;
         room.Group = null;
 
