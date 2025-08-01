@@ -16,12 +16,14 @@ internal class PurchaseGroupEvent : IPacketEvent
     private readonly IGroupManager _groupManager;
     private readonly IWordFilterManager _wordFilterManager;
     private readonly ISettingsManager _settingsManager;
+    private readonly IRoomDataLoader _roomDataLoader;
 
-    public PurchaseGroupEvent(IGroupManager groupManager, IWordFilterManager wordFilterManager, ISettingsManager settingsManager)
+    public PurchaseGroupEvent(IGroupManager groupManager, IWordFilterManager wordFilterManager, ISettingsManager settingsManager, IRoomDataLoader roomDataLoader)
     {
         _groupManager = groupManager;
         _wordFilterManager = wordFilterManager;
         _settingsManager = settingsManager;
+        _roomDataLoader = roomDataLoader;
     }
     public Task Parse(GameClient session, IIncomingPacket packet)
     {
@@ -39,7 +41,7 @@ internal class PurchaseGroupEvent : IPacketEvent
         }
         session.GetHabbo().Credits -= groupCost;
         session.Send(new CreditBalanceComposer(session.GetHabbo().Credits));
-        if (!RoomFactory.TryGetData(roomId, out var room))
+        if (!_roomDataLoader.TryGetData(roomId, out var room))
             return Task.CompletedTask;
         if (room == null || room.OwnerId != session.GetHabbo().Id || room.Group != null)
             return Task.CompletedTask;

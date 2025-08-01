@@ -4,10 +4,11 @@ using Plus.Database;
 using Plus.HabboHotel.GameClients;
 using Plus.HabboHotel.Rooms;
 using Plus.HabboHotel.Rooms.Chat.Filter;
+using Plus.HabboHotel.Badges;
 using Plus.HabboHotel.Users.Messenger;
 using Dapper;
-using Plus.HabboHotel.Badges;
 using Plus.HabboHotel.Friends;
+using Plus.Core.Settings;
 
 namespace Plus.Communication.Packets.Incoming.Catalog;
 
@@ -17,13 +18,17 @@ public class PurchaseRoomAdEvent : IPacketEvent
     private readonly IDatabase _database;
     private readonly IBadgeManager _badgeManager;
     private readonly IMessengerDataLoader _messengerDataLoader;
+    private readonly IRoomDataLoader _roomDataLoader;
+    private readonly ISettingsManager _settingsManager;
 
-    public PurchaseRoomAdEvent(IWordFilterManager wordFilterManager, IDatabase database, IBadgeManager badgeManager, IMessengerDataLoader messengerDataLoader)
+    public PurchaseRoomAdEvent(IWordFilterManager wordFilterManager, IDatabase database, IBadgeManager badgeManager, IMessengerDataLoader messengerDataLoader, IRoomDataLoader roomDataLoader, ISettingsManager settingsManager)
     {
         _wordFilterManager = wordFilterManager;
         _database = database;
         _badgeManager = badgeManager;
         _messengerDataLoader = messengerDataLoader;
+        _roomDataLoader = roomDataLoader;
+        _settingsManager = settingsManager;
     }
 
     public async Task Parse(GameClient session, IIncomingPacket packet)
@@ -35,12 +40,12 @@ public class PurchaseRoomAdEvent : IPacketEvent
         packet.ReadBool(); //junk
         var desc = _wordFilterManager.CheckMessage(packet.ReadString());
         var categoryId = packet.ReadInt();
-        if (!RoomFactory.TryGetData(roomId, out var data))
+        if (!_roomDataLoader.TryGetData(roomId, out var data))
             return;
         if (data.OwnerId != session.GetHabbo().Id)
             return;
         if (data.Promotion == null)
-            data.Promotion = new(name, desc, categoryId);
+            data.Promotion = new(name, desc, categoryId, _settingsManager);
         else
         {
             data.Promotion.Name = name;

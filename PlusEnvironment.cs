@@ -296,7 +296,7 @@ public class PlusEnvironment : IPlusEnvironment
     }
 
 
-    public static void PerformShutDown()
+    public void PerformShutDown()
     {
         Console.Clear();
         Log.Info("Server shutting down...");
