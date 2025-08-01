@@ -18,6 +18,8 @@ namespace Plus;
 public static class Program
 {
     private static Dictionary<ServiceLifetime, IEnumerable<Type>> _defaultTypes = new();
+    private static IPlusEnvironment _environment;
+    private static IConsoleCommandHandler _consoleCommands;
 
     public static async Task Main(string[] args)
     {
@@ -64,13 +66,15 @@ public static class Program
         foreach (var plugin in pluginDefinitions)
             plugin.OnServiceProviderBuild(serviceProvider);
 
+        _environment = serviceProvider.GetRequiredService<IPlusEnvironment>();
+        _consoleCommands = serviceProvider.GetRequiredService<IConsoleCommandHandler>();
+
         Console.ForegroundColor = ConsoleColor.White;
         Console.CursorVisible = false;
         AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 
         // Start
-        var environment = serviceProvider.GetRequiredService<IPlusEnvironment>();
-        var started = await environment.Start();
+        var started = await _environment.Start();
         if (!started)
         {
             Environment.Exit(1);
@@ -83,10 +87,7 @@ public static class Program
                 Console.Write("plus> ");
                 var input = Console.ReadLine();
                 if (input.Length > 0)
-                {
-                    var s = input.Split(' ')[0];
-                    ConsoleCommands.InvokeCommand(s);
-                }
+                    _consoleCommands.InvokeCommand(input);
             }
         }
     }
@@ -155,6 +156,6 @@ public static class Program
     {
         var e = (Exception)args.ExceptionObject;
         //Logger.LogCriticalException("SYSTEM CRITICAL EXCEPTION: " + e);
-        PlusEnvironment.PerformShutDown();
+        _environment?.PerformShutDown();
     }
 }
