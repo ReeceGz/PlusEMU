@@ -30,18 +30,20 @@ public class PlusEnvironment : IPlusEnvironment
     public const string PrettyBuild = "3.4.3.0";
     private static readonly ILogger Log = LogManager.GetLogger("Plus.PlusEnvironment");
 
+    public static PlusEnvironment? Instance { get; private set; }
+
     private static Encoding _defaultEncoding;
     public static CultureInfo CultureInfo;
 
-    private static IGame _game;
-    private static ILanguageManager _languageManager;
-    private static ISettingsManager _settingsManager;
-    private static IDatabase _database;
-    private static IRconSocket _rcon;
-    private static IFlashServer _flashServer;
+    private readonly IGame _game;
+    private readonly ILanguageManager _languageManager;
+    private readonly ISettingsManager _settingsManager;
+    private readonly IDatabase _database;
+    private readonly IRconSocket _rcon;
+    private readonly IFlashServer _flashServer;
     private readonly INitroServer _nitroServer;
-    private static IFigureDataManager _figureManager;
-    private static IItemDataManager _itemDataManager;
+    private readonly IFigureDataManager _figureManager;
+    private readonly IItemDataManager _itemDataManager;
 
     public static DateTime ServerStarted;
 
@@ -69,6 +71,7 @@ public class PlusEnvironment : IPlusEnvironment
         IFlashServer flashServer,
         INitroServer nitroServer)
     {
+        Instance = this;
         _database = database;
         _languageManager = languageManager;
         _settingsManager = settingsManager;
@@ -322,19 +325,31 @@ public class PlusEnvironment : IPlusEnvironment
 
     public static Encoding GetDefaultEncoding() => _defaultEncoding;
 
+    IGame IPlusEnvironment.Game => _game;
+
+    ILanguageManager IPlusEnvironment.LanguageManager => _languageManager;
+
+    ISettingsManager IPlusEnvironment.SettingsManager => _settingsManager;
+
+    IDatabase IPlusEnvironment.DatabaseManager => _database;
+
+    IRconSocket IPlusEnvironment.RconSocket => _rcon;
+
+    IFigureDataManager IPlusEnvironment.FigureManager => _figureManager;
+
     [Obsolete("Use dependency injection instead and inject required services.")]
-    public static IGame Game => _game;
+    public static IGame Game => Instance!._game;
 
-    public static IRconSocket RconSocket => _rcon;
+    public static IRconSocket RconSocket => Instance!._rcon;
 
-    public static IFigureDataManager FigureManager => _figureManager;
+    public static IFigureDataManager FigureManager => Instance!._figureManager;
 
     [Obsolete("Inject IDatabase instead")]
-    public static IDatabase DatabaseManager => _database;
+    public static IDatabase DatabaseManager => Instance!._database;
 
-    public static ILanguageManager LanguageManager => _languageManager;
+    public static ILanguageManager LanguageManager => Instance!._languageManager;
 
-    public static ISettingsManager SettingsManager => _settingsManager;
+    public static ISettingsManager SettingsManager => Instance!._settingsManager;
 
     public static ICollection<Habbo> CachedUsers => _usersCached.Values;
 
