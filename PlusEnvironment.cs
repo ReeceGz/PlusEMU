@@ -336,6 +336,8 @@ public class PlusEnvironment : IPlusEnvironment
     IRconSocket IPlusEnvironment.RconSocket => _rcon;
 
     IFigureDataManager IPlusEnvironment.FigureManager => _figureManager;
+    ICollection<Habbo> IPlusEnvironment.CachedUsers => CachedUsers;
+    bool IPlusEnvironment.RemoveFromCache(int id, out Habbo data) => RemoveFromCache(id, out data);
 
     [Obsolete("Use dependency injection instead and inject required services.")]
     public static IGame Game => Instance!._game;

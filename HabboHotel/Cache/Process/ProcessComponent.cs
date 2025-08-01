@@ -7,10 +7,12 @@ namespace Plus.HabboHotel.Cache.Process;
 public sealed class ProcessComponent : IProcessComponent
 {
     private readonly ILogger<ProcessComponent> _logger;
+    private readonly IPlusEnvironment _environment;
 
-    public ProcessComponent(ILogger<ProcessComponent> logger)
+    public ProcessComponent(ILogger<ProcessComponent> logger, IPlusEnvironment environment)
     {
         _logger = logger;
+        _environment = environment;
     }
 
     /// <summary>
@@ -69,7 +71,7 @@ public sealed class ProcessComponent : IProcessComponent
             _resetEvent.Reset();
 
             // BEGIN CODE
-            var cacheList = PlusEnvironment.Game.CacheManager.GetUserCache().ToList();
+            var cacheList = _environment.Game.CacheManager.GetUserCache().ToList();
             if (cacheList.Count > 0)
             {
                 foreach (var cache in cacheList)
@@ -79,7 +81,7 @@ public sealed class ProcessComponent : IProcessComponent
                         if (cache == null)
                             continue;
                         if (cache.IsExpired)
-                            PlusEnvironment.Game.CacheManager.TryRemoveUser(cache.Id, out _);
+                            _environment.Game.CacheManager.TryRemoveUser(cache.Id, out _);
                     }
                     catch (Exception e)
                     {
@@ -87,7 +89,7 @@ public sealed class ProcessComponent : IProcessComponent
                     }
                 }
             }
-            var cachedUsers = PlusEnvironment.CachedUsers.ToList();
+            var cachedUsers = _environment.CachedUsers.ToList();
             if (cachedUsers.Count > 0)
             {
                 foreach (var data in cachedUsers)
@@ -98,7 +100,7 @@ public sealed class ProcessComponent : IProcessComponent
                             continue;
                         Habbo temp = null;
                         if (data.CacheExpired())
-                            PlusEnvironment.RemoveFromCache(data.Id, out temp);
+                            _environment.RemoveFromCache(data.Id, out temp);
                         if (temp != null)
                             temp.Dispose();
                     }

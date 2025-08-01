@@ -7,7 +7,6 @@ namespace Plus.HabboHotel.Items;
 public class ItemFactory : IItemFactory
 {
     private readonly IDatabase _database;
-    public static ItemFactory Instance { get; set; }
 
     public ItemFactory(IDatabase database)
     {
