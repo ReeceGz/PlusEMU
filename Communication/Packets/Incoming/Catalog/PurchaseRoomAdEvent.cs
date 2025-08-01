@@ -22,6 +22,8 @@ public class PurchaseRoomAdEvent : IPacketEvent
     private readonly ISettingsManager _settingsManager;
 
     public PurchaseRoomAdEvent(IWordFilterManager wordFilterManager, IDatabase database, IBadgeManager badgeManager, IMessengerDataLoader messengerDataLoader, IRoomDataLoader roomDataLoader, ISettingsManager settingsManager)
+
+    public PurchaseRoomAdEvent(IWordFilterManager wordFilterManager, IDatabase database, IBadgeManager badgeManager, IMessengerDataLoader messengerDataLoader, IRoomDataLoader roomDataLoader)
     {
         _wordFilterManager = wordFilterManager;
         _database = database;
