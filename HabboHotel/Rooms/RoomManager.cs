@@ -177,7 +177,7 @@ public class RoomManager : IRoomManager
                 room = null;
                 return false;
             }
-            var myInstance = new Room(data);
+            var myInstance = new Room(data, _database);
             if (_rooms.TryAdd(roomId, myInstance))
             {
                 room = myInstance;

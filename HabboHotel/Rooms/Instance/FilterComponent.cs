@@ -1,23 +1,26 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
+using Plus.Database;
 
 namespace Plus.HabboHotel.Rooms.Instance;
 
 public class FilterComponent
 {
     private Room _instance;
+    private readonly IDatabase _database;
 
-    public FilterComponent(Room instance)
+    public FilterComponent(Room instance, IDatabase database)
     {
         if (instance == null)
             return;
         _instance = instance;
+        _database = database;
     }
 
     public bool AddFilter(string word)
     {
         if (_instance.WordFilterList.Contains(word))
             return false;
-        using (var dbClient = PlusEnvironment.DatabaseManager.GetQueryReactor())
+        using (var dbClient = _database.GetQueryReactor())
         {
             dbClient.SetQuery("INSERT INTO `room_filter` (`room_id`,`word`) VALUES(@rid,@word);");
             dbClient.AddParameter("rid", _instance.Id);
@@ -32,7 +35,7 @@ public class FilterComponent
     {
         if (!_instance.WordFilterList.Contains(word))
             return false;
-        using (var dbClient = PlusEnvironment.DatabaseManager.GetQueryReactor())
+        using (var dbClient = _database.GetQueryReactor())
         {
             dbClient.SetQuery("DELETE FROM `room_filter` WHERE `room_id` = @rid AND `word` = @word;");
             dbClient.AddParameter("rid", _instance.Id);

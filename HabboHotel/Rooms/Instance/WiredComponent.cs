@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Data;
+using Plus.Database;
 using Plus.HabboHotel.Items;
 using Plus.HabboHotel.Items.Wired;
 using Plus.HabboHotel.Items.Wired.Boxes;
@@ -13,10 +14,12 @@ public class WiredComponent
 {
     private readonly Room _room;
     private readonly ConcurrentDictionary<uint, IWiredItem> _wiredItems;
+    private readonly IDatabase _database;
 
-    public WiredComponent(Room instance) //, RoomItem Items)
+    public WiredComponent(Room instance, IDatabase database) //, RoomItem Items)
     {
         _room = instance;
+        _database = database;
         _wiredItems = new();
     }
 
@@ -48,7 +51,7 @@ public class WiredComponent
     {
         var newBox = GenerateNewBox(item);
         DataRow row = null;
-        using (var dbClient = PlusEnvironment.DatabaseManager.GetQueryReactor())
+        using (var dbClient = _database.GetQueryReactor())
         {
             dbClient.SetQuery("SELECT * FROM wired_items WHERE id=@id LIMIT 1");
             dbClient.AddParameter("id", item.Id);
@@ -391,7 +394,7 @@ public class WiredComponent
         }
         if (item.Type == WiredBoxType.EffectMatchPosition || item.Type == WiredBoxType.ConditionMatchStateAndPosition || item.Type == WiredBoxType.ConditionDontMatchStateAndPosition)
             item.ItemsData = items;
-        using var dbClient = PlusEnvironment.DatabaseManager.GetQueryReactor();
+        using var dbClient = _database.GetQueryReactor();
         dbClient.SetQuery("REPLACE INTO `wired_items` VALUES (@id, @items, @delay, @string, @bool)");
         dbClient.AddParameter("id", item.Item.Id);
         dbClient.AddParameter("items", items);

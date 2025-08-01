@@ -16,6 +16,7 @@ using Plus.HabboHotel.Rooms.Games.Football;
 using Plus.HabboHotel.Rooms.Games.Freeze;
 using Plus.HabboHotel.Rooms.Games.Teams;
 using Plus.HabboHotel.Rooms.Instance;
+using Plus.Database;
 using Plus.Utilities;
 
 namespace Plus.HabboHotel.Rooms;
@@ -29,6 +30,7 @@ public class Room : RoomData
     private readonly Dictionary<uint, List<RoomUser>> _tents;
     private readonly TradingComponent _tradingComponent;
     private readonly WiredComponent _wiredComponent;
+    private readonly IDatabase _database;
     private BattleBanzai _banzai;
     private Freeze _freeze;
     private GameItemHandler _gameItemHandler;
@@ -58,9 +60,10 @@ public class Room : RoomData
 
     public List<int> UsersWithRights;
 
-    public Room(RoomData data)
+    public Room(RoomData data, IDatabase database)
         : base(data)
     {
+        _database = database;
         IsLagging = 0;
         Unloaded = false;
         IdleTime = 0;
@@ -70,9 +73,9 @@ public class Room : RoomData
         _gamemap = new(this, data.Model);
         _roomItemHandling = new(this);
         _roomUserManager = new(this);
-        _filterComponent = new(this);
-        _wiredComponent = new(this);
-        _bansComponent = new(this);
+        _filterComponent = new(this, _database);
+        _wiredComponent = new(this, _database);
+        _bansComponent = new(this, _database);
         _tradingComponent = new(this);
         GetRoomItemHandler().LoadFurniture();
         GetGameMap().GenerateMaps();

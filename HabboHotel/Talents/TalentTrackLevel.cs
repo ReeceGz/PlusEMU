@@ -1,15 +1,18 @@
-﻿using System.Data;
+using System.Data;
+using Plus.Database;
 
 namespace Plus.HabboHotel.Talents;
 
 public class TalentTrackLevel
 {
     private readonly Dictionary<int, TalentTrackSubLevel> _subLevels;
+    private readonly IDatabase _database;
 
-    public TalentTrackLevel(string type, int level, string dataActions, string dataGifts)
+    public TalentTrackLevel(string type, int level, string dataActions, string dataGifts, IDatabase database)
     {
         Type = type;
         Level = level;
+        _database = database;
         foreach (var str in dataActions.Split('|'))
         {
             if (Actions == null) Actions = new();
@@ -34,7 +37,7 @@ public class TalentTrackLevel
     public void Init()
     {
         DataTable getTable = null;
-        using (var dbClient = PlusEnvironment.DatabaseManager.GetQueryReactor())
+        using (var dbClient = _database.GetQueryReactor())
         {
             dbClient.SetQuery("SELECT `sub_level`,`badge_code`,`required_progress` FROM `talents_sub_levels` WHERE `talent_level` = @TalentLevel");
             dbClient.AddParameter("TalentLevel", Level);
