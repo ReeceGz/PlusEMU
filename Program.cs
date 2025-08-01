@@ -48,6 +48,7 @@ public static class Program
 
         // Dependency Injection
         services.AddDefaultRules(typeof(Program).Assembly);
+        services.AddSingleton<IPlusEnvironment, PlusEnvironment>();
 
         foreach (var plugin in pluginDefinitions)
             plugin.OnServicesConfigured();
