@@ -8,6 +8,7 @@ using Plus.HabboHotel.Badges;
 using Plus.HabboHotel.Users.Messenger;
 using Dapper;
 using Plus.HabboHotel.Friends;
+using Plus.Core.Settings;
 
 namespace Plus.Communication.Packets.Incoming.Catalog;
 
@@ -18,6 +19,9 @@ public class PurchaseRoomAdEvent : IPacketEvent
     private readonly IBadgeManager _badgeManager;
     private readonly IMessengerDataLoader _messengerDataLoader;
     private readonly IRoomDataLoader _roomDataLoader;
+    private readonly ISettingsManager _settingsManager;
+
+    public PurchaseRoomAdEvent(IWordFilterManager wordFilterManager, IDatabase database, IBadgeManager badgeManager, IMessengerDataLoader messengerDataLoader, IRoomDataLoader roomDataLoader, ISettingsManager settingsManager)
 
     public PurchaseRoomAdEvent(IWordFilterManager wordFilterManager, IDatabase database, IBadgeManager badgeManager, IMessengerDataLoader messengerDataLoader, IRoomDataLoader roomDataLoader)
     {
@@ -26,6 +30,7 @@ public class PurchaseRoomAdEvent : IPacketEvent
         _badgeManager = badgeManager;
         _messengerDataLoader = messengerDataLoader;
         _roomDataLoader = roomDataLoader;
+        _settingsManager = settingsManager;
     }
 
     public async Task Parse(GameClient session, IIncomingPacket packet)
@@ -42,7 +47,7 @@ public class PurchaseRoomAdEvent : IPacketEvent
         if (data.OwnerId != session.GetHabbo().Id)
             return;
         if (data.Promotion == null)
-            data.Promotion = new(name, desc, categoryId);
+            data.Promotion = new(name, desc, categoryId, _settingsManager);
         else
         {
             data.Promotion.Name = name;
