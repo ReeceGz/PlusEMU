@@ -120,7 +120,7 @@ public class PurchaseFromCatalogEvent : IPacketEvent
                 double number = 0;
                 try
                 {
-                    number = string.IsNullOrEmpty(extraData) ? 0 : double.Parse(extraData, PlusEnvironment.CultureInfo);
+                    number = string.IsNullOrEmpty(extraData) ? 0 : double.Parse(extraData, CultureInfo.InvariantCulture);
                 }
                 catch (Exception e)
                 {

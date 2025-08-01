@@ -11,6 +11,8 @@ using Plus.HabboHotel.Rooms.AI;
 using Plus.HabboHotel.Rooms.Games.Teams;
 using Plus.HabboHotel.Rooms.PathFinding;
 using Plus.HabboHotel.Rooms.Trading;
+using Plus.HabboHotel.Groups;
+using Plus.HabboHotel.Users.UserData;
 using Plus.Utilities;
 
 using Dapper;
@@ -21,6 +23,8 @@ public class RoomUserManager
 {
     private ConcurrentDictionary<int, RoomUser> _bots;
     private ConcurrentDictionary<int, RoomUser> _pets;
+    private readonly IGroupManager _groupManager;
+    private readonly IUserDataFactory _userDataFactory;
 
     private int _primaryPrivateUserId;
     private Room _room;
@@ -30,9 +34,11 @@ public class RoomUserManager
     public int UserCount;
 
 
-    public RoomUserManager(Room room)
+    public RoomUserManager(Room room, IGroupManager groupManager, IUserDataFactory userDataFactory)
     {
         _room = room;
+        _groupManager = groupManager;
+        _userDataFactory = userDataFactory;
         _users = new();
         _pets = new();
         _bots = new();
@@ -75,7 +81,7 @@ public class RoomUserManager
         else
             user.BotAi.Init(bot.BotId, user.VirtualId, _room.RoomId, user, _room);
         user.UpdateNeeded = true;
-        _room.SendPacket(new UsersComposer(user));
+        _room.SendPacket(new UsersComposer(user, _groupManager, _userDataFactory));
         if (user.IsPet)
         {
             if (_pets.ContainsKey(user.PetData.PetId))
@@ -190,7 +196,7 @@ public class RoomUserManager
                 user.SetRot(model.DoorOrientation, false);
             }
         }
-        _room.SendPacket(new UsersComposer(user));
+        _room.SendPacket(new UsersComposer(user, _groupManager, _userDataFactory));
         if (_room.CheckRights(session, true))
         {
             user.SetStatus("flatctrl", "useradmin");

@@ -153,7 +153,7 @@ public class PurchaseFromCatalogAsGiftEvent : IPacketEvent
                     double number = 0;
                     try
                     {
-                        number = string.IsNullOrEmpty(data) ? 0 : double.Parse(data, PlusEnvironment.CultureInfo);
+                        number = string.IsNullOrEmpty(data) ? 0 : double.Parse(data, CultureInfo.InvariantCulture);
                     }
                     catch
                     {
