@@ -1,16 +1,19 @@
 ﻿using Plus.Communication.Packets.Outgoing.Groups;
 using Plus.HabboHotel.GameClients;
 using Plus.HabboHotel.Groups;
+using Plus.HabboHotel.Users.UserData;
 
 namespace Plus.Communication.Packets.Incoming.Groups;
 
 internal class AcceptGroupMembershipEvent : IPacketEvent
 {
     private readonly IGroupManager _groupManager;
+    private readonly IUserDataFactory _userDataFactory;
 
-    public AcceptGroupMembershipEvent(IGroupManager groupManager)
+    public AcceptGroupMembershipEvent(IGroupManager groupManager, IUserDataFactory userDataFactory)
     {
         _groupManager = groupManager;
+        _userDataFactory = userDataFactory;
     }
 
     public Task Parse(GameClient session, IIncomingPacket packet)
@@ -23,7 +26,7 @@ internal class AcceptGroupMembershipEvent : IPacketEvent
             return Task.CompletedTask;
         if (!group.HasRequest(userId))
             return Task.CompletedTask;
-        var habbo = PlusEnvironment.GetHabboById(userId);
+        var habbo = _userDataFactory.GetUserDataByIdAsync(userId).Result;
         if (habbo == null)
         {
             session.SendNotification("Oops, an error occurred whilst finding this user.");

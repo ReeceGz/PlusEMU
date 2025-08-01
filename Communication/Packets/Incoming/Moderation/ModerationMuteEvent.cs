@@ -1,15 +1,18 @@
 ﻿using Plus.Database;
 using Plus.HabboHotel.GameClients;
+using Plus.HabboHotel.Users.UserData;
 
 namespace Plus.Communication.Packets.Incoming.Moderation;
 
 internal class ModerationMuteEvent : IPacketEvent
 {
     public readonly IDatabase _database;
+    private readonly IUserDataFactory _userDataFactory;
 
-    public ModerationMuteEvent(IDatabase database)
+    public ModerationMuteEvent(IDatabase database, IUserDataFactory userDataFactory)
     {
         _database = database;
+        _userDataFactory = userDataFactory;
     }
 
     public Task Parse(GameClient session, IIncomingPacket packet)
@@ -21,7 +24,7 @@ internal class ModerationMuteEvent : IPacketEvent
         double length = packet.ReadInt() * 60;
         packet.ReadString(); //unk1
         packet.ReadString(); //unk2
-        var habbo = PlusEnvironment.GetHabboById(userId);
+        var habbo = _userDataFactory.GetUserDataByIdAsync(userId).Result;
         if (habbo == null)
         {
             session.SendWhisper("An error occoured whilst finding that user in the database.");

@@ -1,6 +1,7 @@
 ﻿using Plus.HabboHotel.GameClients;
 using Plus.HabboHotel.Rooms.AI;
 using Plus.HabboHotel.Users;
+using Plus.HabboHotel.Rooms;
 using Plus.Utilities;
 
 namespace Plus.Communication.Packets.Outgoing.Rooms.AI.Pets;
@@ -9,19 +10,21 @@ public class PetInformationComposer : IServerPacket
 {
     private readonly Habbo? _habbo;
     private readonly Pet? _pet;
+    private readonly IRoomManager _roomManager;
 
     public uint MessageId => ServerPacketHeader.PetInformationComposer;
 
-    public PetInformationComposer(Pet pet)
+    public PetInformationComposer(Pet pet, IRoomManager roomManager)
     {
         _pet = pet;
+        _roomManager = roomManager;
     }
 
     public void Compose(IOutgoingPacket packet)
     {
         if (_pet != null)
         {
-            if (!PlusEnvironment.Game.RoomManager.TryGetRoom(_pet.RoomId, out var room))
+            if (!_roomManager.TryGetRoom(_pet.RoomId, out var room))
                 return;
             packet.WriteInteger(_pet.PetId);
             packet.WriteString(_pet.Name);

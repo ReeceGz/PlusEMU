@@ -4,6 +4,7 @@ using Plus.Database;
 using Plus.HabboHotel.GameClients;
 using Plus.HabboHotel.Rooms;
 using Plus.HabboHotel.Rooms.Chat.Logs;
+using Plus.HabboHotel.Users.UserData;
 
 namespace Plus.Communication.Packets.Incoming.Moderation;
 
@@ -12,12 +13,14 @@ internal class GetModeratorRoomChatlogEvent : IPacketEvent
     private readonly IRoomManager _roomManager;
     private readonly IChatlogManager _chatlogManager;
     private readonly IDatabase _database;
+    private readonly IUserDataFactory _userDataFactory;
 
-    public GetModeratorRoomChatlogEvent(IRoomManager roomManager, IChatlogManager chatlogManager, IDatabase database)
+    public GetModeratorRoomChatlogEvent(IRoomManager roomManager, IChatlogManager chatlogManager, IDatabase database, IUserDataFactory userDataFactory)
     {
         _roomManager = roomManager;
         _chatlogManager = chatlogManager;
         _database = database;
+        _userDataFactory = userDataFactory;
     }
 
     public Task Parse(GameClient session, IIncomingPacket packet)
@@ -38,7 +41,7 @@ internal class GetModeratorRoomChatlogEvent : IPacketEvent
             {
                 foreach (DataRow row in data.Rows)
                 {
-                    var habbo = PlusEnvironment.GetHabboById(Convert.ToInt32(row["user_id"]));
+                    var habbo = _userDataFactory.GetUserDataByIdAsync(Convert.ToInt32(row["user_id"])).Result;
                     if (habbo != null) chats.Add(new(Convert.ToInt32(row["user_id"]), roomId, Convert.ToString(row["message"]), Convert.ToDouble(row["timestamp"]), habbo));
                 }
             }

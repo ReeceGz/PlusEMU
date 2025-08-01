@@ -1,10 +1,18 @@
 ﻿using Plus.Communication.Packets.Outgoing.Rooms.AI.Pets;
 using Plus.HabboHotel.GameClients;
+using Plus.HabboHotel.Rooms;
 
 namespace Plus.Communication.Packets.Incoming.Rooms.AI.Pets;
 
 internal class GetPetInformationEvent : IPacketEvent
 {
+    private readonly IRoomManager _roomManager;
+
+    public GetPetInformationEvent(IRoomManager roomManager)
+    {
+        _roomManager = roomManager;
+    }
+
     public Task Parse(GameClient session, IIncomingPacket packet)
     {
         if (!session.GetHabbo().InRoom)
@@ -29,7 +37,7 @@ internal class GetPetInformationEvent : IPacketEvent
         //Continue as a regular pet..
         if (pet.RoomId != session.GetHabbo().CurrentRoom?.RoomId || pet.PetData == null)
             return Task.CompletedTask;
-        session.Send(new PetInformationComposer(pet.PetData));
+        session.Send(new PetInformationComposer(pet.PetData, _roomManager));
         return Task.CompletedTask;
     }
 }

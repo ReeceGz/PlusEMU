@@ -3,6 +3,7 @@ using Plus.Communication.Packets.Outgoing.Rooms.Permissions;
 using Plus.HabboHotel.GameClients;
 using Plus.HabboHotel.Groups;
 using Plus.HabboHotel.Rooms;
+using Plus.HabboHotel.Users.UserData;
 
 namespace Plus.Communication.Packets.Incoming.Groups;
 
@@ -10,11 +11,13 @@ internal class TakeAdminRightsEvent : IPacketEvent
 {
     private readonly IGroupManager _groupManager;
     private readonly IRoomManager _roomManager;
+    private readonly IUserDataFactory _userDataFactory;
 
-    public TakeAdminRightsEvent(IGroupManager groupManager, IRoomManager roomManager)
+    public TakeAdminRightsEvent(IGroupManager groupManager, IRoomManager roomManager, IUserDataFactory userDataFactory)
     {
         _groupManager = groupManager;
         _roomManager = roomManager;
+        _userDataFactory = userDataFactory;
     }
 
     public Task Parse(GameClient session, IIncomingPacket packet)
@@ -25,7 +28,7 @@ internal class TakeAdminRightsEvent : IPacketEvent
             return Task.CompletedTask;
         if (session.GetHabbo().Id != group.CreatorId || !group.IsMember(userId))
             return Task.CompletedTask;
-        var habbo = PlusEnvironment.GetHabboById(userId);
+        var habbo = _userDataFactory.GetUserDataByIdAsync(userId).Result;
         if (habbo == null)
         {
             session.SendNotification("Oops, an error occurred whilst finding this user.");

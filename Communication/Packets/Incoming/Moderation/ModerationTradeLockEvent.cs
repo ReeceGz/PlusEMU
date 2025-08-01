@@ -1,15 +1,19 @@
 ﻿using Plus.Database;
 using Plus.HabboHotel.GameClients;
+using Plus.HabboHotel.Users.UserData;
+using Plus.Utilities;
 
 namespace Plus.Communication.Packets.Incoming.Moderation;
 
 internal class ModerationTradeLockEvent : IPacketEvent
 {
     public readonly IDatabase _database;
+    private readonly IUserDataFactory _userDataFactory;
 
-    public ModerationTradeLockEvent(IDatabase database)
+    public ModerationTradeLockEvent(IDatabase database, IUserDataFactory userDataFactory)
     {
         _database = database;
+        _userDataFactory = userDataFactory;
     }
 
     public Task Parse(GameClient session, IIncomingPacket packet)
@@ -21,8 +25,8 @@ internal class ModerationTradeLockEvent : IPacketEvent
         var days = packet.ReadInt() / 1440.0;
         packet.ReadString(); //unk1
         packet.ReadString(); //unk2
-        var length = PlusEnvironment.GetUnixTimestamp() + days * 86400;
-        var habbo = PlusEnvironment.GetHabboById(userId);
+        var length = UnixTimestamp.GetNow() + days * 86400;
+        var habbo = _userDataFactory.GetUserDataByIdAsync(userId).Result;
         if (habbo == null)
         {
             session.SendWhisper("An error occoured whilst finding that user in the database.");
