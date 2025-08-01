@@ -1,15 +1,19 @@
 ﻿using Plus.Utilities;
+using Plus.Core.Settings;
 
 namespace Plus.HabboHotel.Rooms;
 
 public class RoomPromotion
 {
-    public RoomPromotion(string name, string description, int categoryId)
+    private readonly ISettingsManager _settingsManager;
+
+    public RoomPromotion(string name, string description, int categoryId, ISettingsManager settingsManager)
     {
+        _settingsManager = settingsManager;
         Name = name;
         Description = description;
         TimestampStarted = UnixTimestamp.GetNow();
-        TimestampExpires = UnixTimestamp.GetNow() + Convert.ToInt32(PlusEnvironment.SettingsManager.TryGetValue("room.promotion.lifespan")) * 60;
+        TimestampExpires = UnixTimestamp.GetNow() + Convert.ToInt32(_settingsManager.TryGetValue("room.promotion.lifespan")) * 60;
         CategoryId = categoryId;
     }
 

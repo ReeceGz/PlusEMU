@@ -5,16 +5,19 @@ using Plus.HabboHotel.Groups;
 using Dapper;
 
 namespace Plus.Communication.Packets.Incoming.Groups;
+using Plus.HabboHotel.Users.UserData;
 
 internal class UpdateGroupBadgeEvent : IPacketEvent
 {
     private readonly IGroupManager _groupManager;
     private readonly IDatabase _database;
+    private readonly IUserDataFactory _userDataFactory;
 
-    public UpdateGroupBadgeEvent(IGroupManager groupManager, IDatabase database)
+    public UpdateGroupBadgeEvent(IGroupManager groupManager, IDatabase database, IUserDataFactory userDataFactory)
     {
         _groupManager = groupManager;
         _database = database;
+        _userDataFactory = userDataFactory;
     }
 
     public Task Parse(GameClient session, IIncomingPacket packet)
@@ -32,7 +35,7 @@ internal class UpdateGroupBadgeEvent : IPacketEvent
         {
             connection.Execute("UPDATE `groups` SET `badge` = @badge WHERE `id` = @groupId LIMIT 1", new { badge = group.Badge, groupId = group.Id });
         }
-        session.Send(new GroupInfoComposer(group, session));
+        session.Send(new GroupInfoComposer(group, session, _userDataFactory));
         return Task.CompletedTask;
     }
 }

@@ -7,18 +7,21 @@ using Plus.HabboHotel.Rooms;
 using Dapper;
 
 namespace Plus.Communication.Packets.Incoming.Groups;
+using Plus.HabboHotel.Users.UserData;
 
 internal class UpdateGroupSettingsEvent : IPacketEvent
 {
     private readonly IGroupManager _groupManager;
     private readonly IRoomManager _roomManager;
     private readonly IDatabase _database;
+    private readonly IUserDataFactory _userDataFactory;
 
-    public UpdateGroupSettingsEvent(IGroupManager groupManager, IRoomManager roomManager, IDatabase database)
+    public UpdateGroupSettingsEvent(IGroupManager groupManager, IRoomManager roomManager, IDatabase database, IUserDataFactory userDataFactory)
     {
         _groupManager = groupManager;
         _roomManager = roomManager;
         _database = database;
+        _userDataFactory = userDataFactory;
     }
 
     public Task Parse(GameClient session, IIncomingPacket packet)
@@ -75,7 +78,7 @@ internal class UpdateGroupSettingsEvent : IPacketEvent
                 user.GetClient().Send(new YouAreControllerComposer(1));
             }
         }
-        session.Send(new GroupInfoComposer(group, session));
+        session.Send(new GroupInfoComposer(group, session, _userDataFactory));
         return Task.CompletedTask;
     }
 }

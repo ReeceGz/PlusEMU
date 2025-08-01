@@ -8,10 +8,12 @@ namespace Plus.Communication.Packets.Incoming.FriendList;
 internal class HabboSearchEvent : IPacketEvent
 {
     private readonly ISearchResultFactory _searchResultFactory;
+    private readonly IGameClientManager _clientManager;
 
-    public HabboSearchEvent(ISearchResultFactory searchResultFactory)
+    public HabboSearchEvent(ISearchResultFactory searchResultFactory, IGameClientManager clientManager)
     {
         _searchResultFactory = searchResultFactory;
+        _clientManager = clientManager;
     }
 
     public Task Parse(GameClient session, IIncomingPacket packet)
@@ -29,7 +31,7 @@ internal class HabboSearchEvent : IPacketEvent
             else
                 othersUsers.Add(result);
         }
-        session.Send(new HabboSearchResultComposer(friends, othersUsers));
+        session.Send(new HabboSearchResultComposer(friends, othersUsers, _clientManager));
         return Task.CompletedTask;
     }
 }

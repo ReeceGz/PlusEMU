@@ -12,15 +12,17 @@ public sealed class NavigatorManager : INavigatorManager
 {
     private readonly IDatabase _database;
     private readonly ILogger<NavigatorManager> _logger;
+    private readonly IRoomDataLoader _roomDataLoader;
 
     private readonly Dictionary<uint, FeaturedRoom> _featuredRooms;
     private readonly Dictionary<int, SearchResultList> _searchResultLists;
     private readonly Dictionary<int, TopLevelItem> _topLevelItems;
 
-    public NavigatorManager(IDatabase database, ILogger<NavigatorManager> logger)
+    public NavigatorManager(IDatabase database, ILogger<NavigatorManager> logger, IRoomDataLoader roomDataLoader)
     {
         _database = database;
         _logger = logger;
+        _roomDataLoader = roomDataLoader;
         _topLevelItems = new();
         _searchResultLists = new();
 
@@ -108,7 +110,7 @@ public sealed class NavigatorManager : INavigatorManager
     {
         habbo.HomeRoom = roomId;
 
-        if (!RoomFactory.TryGetData(roomId, out _))
+        if (!_roomDataLoader.TryGetData(roomId, out _))
             return;
 
         using var connection = _database.Connection();

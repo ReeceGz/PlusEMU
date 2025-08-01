@@ -1,5 +1,6 @@
 ﻿using Plus.HabboHotel.GameClients;
 using Plus.Utilities;
+using Plus.Database;
 using System.Data;
 
 namespace Plus.Communication.Packets.Outgoing.Marketplace;
@@ -7,18 +8,20 @@ namespace Plus.Communication.Packets.Outgoing.Marketplace;
 public class MarketPlaceOwnOffersComposer : IServerPacket
 {
     private readonly int _userId;
+    private readonly IDatabase _database;
     public uint MessageId => ServerPacketHeader.MarketPlaceOwnOffersComposer;
 
-    public MarketPlaceOwnOffersComposer(int userId)
+    public MarketPlaceOwnOffersComposer(int userId, IDatabase database)
     {
         _userId = userId;
+        _database = database;
     }
 
     public void Compose(IOutgoingPacket packet)
     {
         var i = 0;
         DataTable table = null;
-        using var dbClient = PlusEnvironment.DatabaseManager.GetQueryReactor();
+        using var dbClient = _database.GetQueryReactor();
         dbClient.SetQuery($"SELECT timestamp, state, offer_id, item_type, sprite_id, total_price, limited_number, limited_stack FROM catalog_marketplace_offers WHERE user_id = '{_userId}'");
         table = dbClient.GetTable();
         dbClient.SetQuery($"SELECT SUM(asking_price) FROM catalog_marketplace_offers WHERE state = '2' AND user_id = '{_userId}'");

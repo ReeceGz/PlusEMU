@@ -12,11 +12,13 @@ internal class GetModeratorUserChatlogEvent : IPacketEvent
 {
     public readonly IChatlogManager _chatlogManager;
     public readonly IDatabase _database;
+    private readonly IRoomDataLoader _roomDataLoader;
 
-    public GetModeratorUserChatlogEvent(IChatlogManager chatlogManager, IDatabase database)
+    public GetModeratorUserChatlogEvent(IChatlogManager chatlogManager, IDatabase database, IRoomDataLoader roomDataLoader)
     {
-        _chatlogManager = chatlogManager; 
+        _chatlogManager = chatlogManager;
         _database = database;
+        _roomDataLoader = roomDataLoader;
     }
 
     public Task Parse(GameClient session, IIncomingPacket packet)
@@ -38,7 +40,7 @@ internal class GetModeratorUserChatlogEvent : IPacketEvent
         {
             foreach (DataRow row in getLogs.Rows)
             {
-                if (!RoomFactory.TryGetData(Convert.ToUInt32(row["room_id"]), out var roomData))
+                if (!_roomDataLoader.TryGetData(Convert.ToUInt32(row["room_id"]), out var roomData))
                     continue;
                 var timestampExit = Convert.ToDouble(row["exit_timestamp"]) <= 0 ? UnixTimestamp.GetNow() : Convert.ToDouble(row["exit_timestamp"]);
                 chatlogs.Add(new(roomData, GetChatlogs(roomData, Convert.ToDouble(row["entry_timestamp"]), timestampExit)));

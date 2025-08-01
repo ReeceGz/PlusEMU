@@ -5,17 +5,20 @@ using Plus.Database;
 using Plus.HabboHotel.GameClients;
 using Plus.HabboHotel.Rooms;
 
+using Plus.HabboHotel.Cache;
 namespace Plus.Communication.Packets.Incoming.Rooms.Action;
 
 internal class RemoveAllRightsEvent : RoomPacketEvent
 {
     private readonly IRoomManager _roomManager;
     private readonly IDatabase _database;
+    private readonly ICacheManager _cacheManager;
 
-    public RemoveAllRightsEvent(IRoomManager roomManager, IDatabase database)
+    public RemoveAllRightsEvent(IRoomManager roomManager, IDatabase database, ICacheManager cacheManager)
     {
         _roomManager = roomManager;
         _database = database;
+        _cacheManager = cacheManager;
     }
 
     public override Task Parse(Room room, GameClient session, IIncomingPacket packet)
@@ -40,7 +43,7 @@ internal class RemoveAllRightsEvent : RoomPacketEvent
                 dbClient.RunQuery();
             }
             session.Send(new FlatControllerRemovedComposer(instance, userId));
-            session.Send(new RoomRightsListComposer(instance));
+            session.Send(new RoomRightsListComposer(instance, _cacheManager));
             session.Send(new UserUpdateComposer(instance.GetRoomUserManager().GetUserList().ToList()));
         }
         if (instance.UsersWithRights.Count > 0)

@@ -11,12 +11,14 @@ internal class EditRoomPromotionEvent : IPacketEvent
     private readonly IWordFilterManager _wordFilterManager;
     private readonly IRoomManager _roomManager;
     private readonly IDatabase _database;
+    private readonly IRoomDataLoader _roomDataLoader;
 
-    public EditRoomPromotionEvent(IWordFilterManager wordFilterManager, IRoomManager roomManager, IDatabase database)
+    public EditRoomPromotionEvent(IWordFilterManager wordFilterManager, IRoomManager roomManager, IDatabase database, IRoomDataLoader roomDataLoader)
     {
         _wordFilterManager = wordFilterManager;
         _roomManager = roomManager;
         _database = database;
+        _roomDataLoader = roomDataLoader;
     }
 
     public Task Parse(GameClient session, IIncomingPacket packet)
@@ -24,7 +26,7 @@ internal class EditRoomPromotionEvent : IPacketEvent
         var roomId = packet.ReadUInt();
         var name = _wordFilterManager.CheckMessage(packet.ReadString());
         var desc = _wordFilterManager.CheckMessage(packet.ReadString());
-        if (!RoomFactory.TryGetData(roomId, out var data))
+        if (!_roomDataLoader.TryGetData(roomId, out var data))
             return Task.CompletedTask;
         if (data.OwnerId != session.GetHabbo().Id)
             return Task.CompletedTask;

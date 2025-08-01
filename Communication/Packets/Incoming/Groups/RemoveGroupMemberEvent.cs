@@ -7,6 +7,7 @@ using Plus.HabboHotel.GameClients;
 using Plus.HabboHotel.Groups;
 using Plus.HabboHotel.Rooms;
 using Dapper;
+using Plus.HabboHotel.Users.UserData;
 
 namespace Plus.Communication.Packets.Incoming.Groups;
 
@@ -16,13 +17,15 @@ internal class RemoveGroupMemberEvent : IPacketEvent
     private readonly IRoomManager _roomManager;
     private readonly IDatabase _database;
     private readonly ICacheManager _cacheManager;
+    private readonly IUserDataFactory _userDataFactory;
 
-    public RemoveGroupMemberEvent(IGroupManager groupManager, IRoomManager roomManager, IDatabase database, ICacheManager cacheManager)
+    public RemoveGroupMemberEvent(IGroupManager groupManager, IRoomManager roomManager, IDatabase database, ICacheManager cacheManager, IUserDataFactory userDataFactory)
     {
         _groupManager = groupManager;
         _roomManager = roomManager;
         _database = database;
         _cacheManager = cacheManager;
+        _userDataFactory = userDataFactory;
     }
 
     public Task Parse(GameClient session, IIncomingPacket packet)
@@ -55,7 +58,7 @@ internal class RemoveGroupMemberEvent : IPacketEvent
                 connection.Execute(
                     "DELETE FROM `group_memberships` WHERE `group_id` = @groupId AND `user_id` = @userId", new { groupId = groupId, userId = userId });
             }
-            session.Send(new GroupInfoComposer(group, session));
+            session.Send(new GroupInfoComposer(group, session, _userDataFactory));
             if (session.GetHabbo().HabboStats.FavouriteGroupId == groupId)
             {
                 session.GetHabbo().HabboStats.FavouriteGroupId = 0;
