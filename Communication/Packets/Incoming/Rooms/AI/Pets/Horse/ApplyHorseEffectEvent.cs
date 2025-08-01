@@ -4,16 +4,22 @@ using Plus.Database;
 using Plus.HabboHotel.GameClients;
 using Plus.HabboHotel.Items;
 using Plus.HabboHotel.Rooms;
+using Plus.HabboHotel.Groups;
+using Plus.HabboHotel.Users.UserData;
 
 namespace Plus.Communication.Packets.Incoming.Rooms.AI.Pets.Horse;
 
 internal class ApplyHorseEffectEvent : RoomPacketEvent
 {
     private readonly IDatabase _database;
+    private readonly IGroupManager _groupManager;
+    private readonly IUserDataFactory _userDataFactory;
 
-    public ApplyHorseEffectEvent(IDatabase database)
+    public ApplyHorseEffectEvent(IDatabase database, IGroupManager groupManager, IUserDataFactory userDataFactory)
     {
         _database = database;
+        _groupManager = groupManager;
+        _userDataFactory = userDataFactory;
     }
 
     public override Task Parse(Room room, GameClient session, IIncomingPacket packet)
@@ -106,7 +112,7 @@ internal class ApplyHorseEffectEvent : RoomPacketEvent
         }
 
         //Update the Pet and the Pet figure information.
-        room.SendPacket(new UsersComposer(petUser));
+        room.SendPacket(new UsersComposer(petUser, _groupManager, _userDataFactory));
         room.SendPacket(new PetHorseFigureInformationComposer(petUser));
         return Task.CompletedTask;
     }

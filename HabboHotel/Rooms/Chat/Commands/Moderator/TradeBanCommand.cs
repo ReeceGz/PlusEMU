@@ -49,7 +49,7 @@ internal class TradeBanCommand : ITargetChatCommand
                 days = 1;
             if (days > 365)
                 days = 365;
-            var length = PlusEnvironment.GetUnixTimestamp() + days * 86400;
+            var length = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + days * 86400;
             using (var dbClient = _database.GetQueryReactor())
             {
                 dbClient.RunQuery($"UPDATE `user_info` SET `trading_locked` = '{length}', `trading_locks_count` = `trading_locks_count` + '1' WHERE `user_id` = '{target.Id}' LIMIT 1");

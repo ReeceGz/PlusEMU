@@ -3,12 +3,16 @@ using Plus.Communication.Packets.Outgoing.Rooms.Engine;
 using Plus.Database;
 using Plus.HabboHotel.GameClients;
 using Plus.Utilities;
+using Plus.HabboHotel.Groups;
+using Plus.HabboHotel.Users.UserData;
 
 namespace Plus.HabboHotel.Rooms.Chat.Commands.User;
 
 internal class RoomCommand : IChatCommand
 {
     private readonly IDatabase _database;
+    private readonly IGroupManager _groupManager;
+    private readonly IUserDataFactory _userDataFactory;
     public string Key => "room";
     public string PermissionRequired => "command_room";
 
@@ -16,9 +20,11 @@ internal class RoomCommand : IChatCommand
 
     public string Description => "Gives you the ability to enable or disable basic room commands.";
 
-    public RoomCommand(IDatabase database)
+    public RoomCommand(IDatabase database, IGroupManager groupManager, IUserDataFactory userDataFactory)
     {
         _database = database;
+        _groupManager = groupManager;
+        _userDataFactory = userDataFactory;
     }
 
     public void Execute(GameClient session, Room room, string[] parameters)
@@ -161,7 +167,7 @@ internal class RoomCommand : IChatCommand
                             room.SendPacket(new UserRemoveComposer(user.VirtualId));
 
                             //Add the new one, they won't even notice a thing!!11 8-)
-                            room.SendPacket(new UsersComposer(user));
+                            room.SendPacket(new UsersComposer(user, _groupManager, _userDataFactory));
                         }
                     }
                 }

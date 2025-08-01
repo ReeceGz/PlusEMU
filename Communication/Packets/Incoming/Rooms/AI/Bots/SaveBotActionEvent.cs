@@ -4,6 +4,8 @@ using Plus.Communication.Packets.Outgoing.Rooms.Avatar;
 using Plus.Communication.Packets.Outgoing.Rooms.Engine;
 using Plus.Database;
 using Plus.HabboHotel.GameClients;
+using Plus.HabboHotel.Groups;
+using Plus.HabboHotel.Users.UserData;
 using Plus.Utilities;
 
 namespace Plus.Communication.Packets.Incoming.Rooms.AI.Bots;
@@ -11,9 +13,13 @@ namespace Plus.Communication.Packets.Incoming.Rooms.AI.Bots;
 internal class SaveBotActionEvent : IPacketEvent
 {
     private readonly IDatabase _database;
-    public SaveBotActionEvent(IDatabase database)
+    private readonly IGroupManager _groupManager;
+    private readonly IUserDataFactory _userDataFactory;
+    public SaveBotActionEvent(IDatabase database, IGroupManager groupManager, IUserDataFactory userDataFactory)
     {
         _database = database;
+        _groupManager = groupManager;
+        _userDataFactory = userDataFactory;
     }
 
     public Task Parse(GameClient session, IIncomingPacket packet)
@@ -147,7 +153,7 @@ internal class SaveBotActionEvent : IPacketEvent
                     dbClient.AddParameter("name", dataString);
                     dbClient.RunQuery();
                 }
-                room.SendPacket(new UsersComposer(bot));
+                room.SendPacket(new UsersComposer(bot, _groupManager, _userDataFactory));
                 break;
             }
         }

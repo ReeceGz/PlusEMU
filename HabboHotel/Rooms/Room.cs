@@ -17,6 +17,8 @@ using Plus.HabboHotel.Rooms.Games.Freeze;
 using Plus.HabboHotel.Rooms.Games.Teams;
 using Plus.HabboHotel.Rooms.Instance;
 using Plus.Database;
+using Plus.HabboHotel.Groups;
+using Plus.HabboHotel.Users.UserData;
 using Plus.Utilities;
 
 namespace Plus.HabboHotel.Rooms;
@@ -41,6 +43,8 @@ public class Room : RoomData
 
     private RoomUserManager _roomUserManager;
     private Soccer _soccer;
+    private readonly IGroupManager _groupManager;
+    private readonly IUserDataFactory _userDataFactory;
 
     public bool IsCrashed;
     public DateTime LastRegeneration;
@@ -60,10 +64,12 @@ public class Room : RoomData
 
     public List<int> UsersWithRights;
 
-    public Room(RoomData data, IDatabase database)
+    public Room(RoomData data, IDatabase database, IGroupManager groupManager, IUserDataFactory userDataFactory)
         : base(data)
     {
         _database = database;
+        _groupManager = groupManager;
+        _userDataFactory = userDataFactory;
         IsLagging = 0;
         Unloaded = false;
         IdleTime = 0;
@@ -72,7 +78,7 @@ public class Room : RoomData
         _tents = new();
         _gamemap = new(this, data.Model);
         _roomItemHandling = new(this);
-        _roomUserManager = new(this);
+        _roomUserManager = new(this, _groupManager, _userDataFactory);
         _filterComponent = new(this, _database);
         _wiredComponent = new(this, _database);
         _bansComponent = new(this, _database);
@@ -449,7 +455,7 @@ public class Room : RoomData
         {
             if (user == null)
                 continue;
-            session.Send(new UsersComposer(user));
+            session.Send(new UsersComposer(user, _groupManager, _userDataFactory));
             if (user.IsBot && user.BotData.DanceId > 0)
                 session.Send(new DanceComposer(user, user.BotData.DanceId));
             else if (!user.IsBot && !user.IsPet && user.IsDancing)

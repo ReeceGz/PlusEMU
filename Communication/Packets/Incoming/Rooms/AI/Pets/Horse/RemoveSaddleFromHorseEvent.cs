@@ -7,6 +7,8 @@ using Plus.HabboHotel.Catalog.Utilities;
 using Plus.HabboHotel.GameClients;
 using Plus.HabboHotel.Items;
 using Plus.HabboHotel.Rooms;
+using Plus.HabboHotel.Groups;
+using Plus.HabboHotel.Users.UserData;
 
 namespace Plus.Communication.Packets.Incoming.Rooms.AI.Pets.Horse;
 
@@ -16,13 +18,17 @@ internal class RemoveSaddleFromHorseEvent : IPacketEvent
     private readonly IItemDataManager _itemDataManager;
     private readonly IDatabase _database;
     private readonly IItemFactory _itemFactory;
+    private readonly IGroupManager _groupManager;
+    private readonly IUserDataFactory _userDataFactory;
 
-    public RemoveSaddleFromHorseEvent(IRoomManager roomManager, IItemDataManager itemDataManager, IDatabase database, IItemFactory itemFactory)
+    public RemoveSaddleFromHorseEvent(IRoomManager roomManager, IItemDataManager itemDataManager, IDatabase database, IItemFactory itemFactory, IGroupManager groupManager, IUserDataFactory userDataFactory)
     {
         _roomManager = roomManager;
         _itemDataManager = itemDataManager;
         _database = database;
         _itemFactory = itemFactory;
+        _groupManager = groupManager;
+        _userDataFactory = userDataFactory;
     }
 
     public Task Parse(GameClient session, IIncomingPacket packet)
@@ -60,7 +66,7 @@ internal class RemoveSaddleFromHorseEvent : IPacketEvent
         }
 
         //Update the Pet and the Pet figure information.
-        room.SendPacket(new UsersComposer(petUser));
+        room.SendPacket(new UsersComposer(petUser, _groupManager, _userDataFactory));
         room.SendPacket(new PetHorseFigureInformationComposer(petUser));
         return Task.CompletedTask;
     }

@@ -3,18 +3,23 @@ using Plus.HabboHotel.GameClients;
 using Plus.HabboHotel.Groups;
 using Plus.HabboHotel.Rooms;
 using Plus.HabboHotel.Rooms.AI;
+using Plus.HabboHotel.Users.UserData;
 
 namespace Plus.Communication.Packets.Outgoing.Rooms.Engine;
 
 public class UsersComposer : IServerPacket
 {
     private readonly ICollection<RoomUser> _users;
+    private readonly IGroupManager _groupManager;
+    private readonly IUserDataFactory _userDataFactory;
 
     public uint MessageId => ServerPacketHeader.UsersComposer;
 
-    public UsersComposer(ICollection<RoomUser> users)
+    public UsersComposer(ICollection<RoomUser> users, IGroupManager groupManager, IUserDataFactory userDataFactory)
     {
         _users = users;
+        _groupManager = groupManager;
+        _userDataFactory = userDataFactory;
     }
 
     public void Compose(IOutgoingPacket packet)
@@ -23,9 +28,11 @@ public class UsersComposer : IServerPacket
         foreach (var user in _users.ToList()) WriteUser(packet, user);
     }
 
-    public UsersComposer(RoomUser user)
+    public UsersComposer(RoomUser user, IGroupManager groupManager, IUserDataFactory userDataFactory)
     {
         _users = new List<RoomUser>() { user };
+        _groupManager = groupManager;
+        _userDataFactory = userDataFactory;
     }
 
     private void WriteUser(IOutgoingPacket packet, RoomUser user)
@@ -40,7 +47,7 @@ public class UsersComposer : IServerPacket
                 {
                     if (habbo.HabboStats.FavouriteGroupId > 0)
                     {
-                        if (!PlusEnvironment.Game.GroupManager.TryGetGroup(habbo.HabboStats.FavouriteGroupId, out group))
+                        if (!_groupManager.TryGetGroup(habbo.HabboStats.FavouriteGroupId, out group))
                             group = null;
                     }
                 }
@@ -154,7 +161,7 @@ public class UsersComposer : IServerPacket
             packet.WriteInteger(user.BotData.AiType == BotAiType.Pet ? 2 : 4);
             packet.WriteString(user.BotData.Gender.ToLower()); // ?
             packet.WriteInteger(user.BotData.OwnerId); //Owner Id
-            packet.WriteString(PlusEnvironment.GetUsernameById(user.BotData.OwnerId)); // Owner name
+            packet.WriteString(_userDataFactory.GetUsernameForHabboById(user.BotData.OwnerId).GetAwaiter().GetResult()); // Owner name
             packet.WriteInteger(5); //Action Count
             packet.WriteShort(1); //Copy looks
             packet.WriteShort(2); //Setup speech

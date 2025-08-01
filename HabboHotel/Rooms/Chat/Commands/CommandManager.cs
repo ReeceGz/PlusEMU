@@ -140,7 +140,7 @@ public class CommandManager : ICommandManager
         dbClient.AddParameter("UserId", userId);
         dbClient.AddParameter("Data", data);
         dbClient.AddParameter("MachineId", machineId ?? string.Empty);
-        dbClient.AddParameter("Timestamp", PlusEnvironment.GetUnixTimestamp());
+        dbClient.AddParameter("Timestamp", DateTimeOffset.UtcNow.ToUnixTimeSeconds());
         dbClient.RunQuery();
     }
 
