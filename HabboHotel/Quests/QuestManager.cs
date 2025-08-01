@@ -125,13 +125,13 @@ public class QuestManager : IQuestManager
                 dbClient.RunQuery($"UPDATE `user_statistics` SET `quest_id` = '0' WHERE `id` = '{session.GetHabbo().Id}' LIMIT 1");
         }
         session.GetHabbo().Quests[session.GetHabbo().HabboStats.QuestId] = totalProgress;
-        session.Send(new QuestStartedComposer(session, quest));
+        session.Send(new QuestStartedComposer(session, quest, this));
         if (completeQuest)
         {
             _messengerDataLoader.BroadcastStatusUpdate(session.GetHabbo(), MessengerEventTypes.QuestCompleted, $"{quest.Category}.{quest.Name}");
             session.GetHabbo().HabboStats.QuestId = 0;
             session.GetHabbo().QuestLastCompleted = quest.Id;
-            session.Send(new QuestCompletedComposer(session, quest));
+            session.Send(new QuestCompletedComposer(session, quest, this));
             session.GetHabbo().Duckets += quest.Reward;
             session.Send(new HabboActivityPointNotificationComposer(session.GetHabbo().Duckets, quest.Reward));
             GetList(session, null);
@@ -178,7 +178,7 @@ public class QuestManager : IQuestManager
                 }
             }
         }
-        session.Send(new QuestListComposer(session, message != null, userQuests));
+        session.Send(new QuestListComposer(session, message != null, userQuests, this));
     }
 
     public void QuestReminder(GameClient session, int questId)
@@ -186,6 +186,6 @@ public class QuestManager : IQuestManager
         var quest = GetQuest(questId);
         if (quest == null)
             return;
-        session.Send(new QuestStartedComposer(session, quest));
+        session.Send(new QuestStartedComposer(session, quest, this));
     }
 }

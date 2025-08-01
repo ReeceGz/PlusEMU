@@ -31,7 +31,7 @@ internal class GetCurrentQuestEvent : IPacketEvent
         }
         session.GetHabbo().HabboStats.QuestId = nextQuest.Id;
         _questManager.GetList(session, null);
-        session.Send(new QuestStartedComposer(session, nextQuest));
+        session.Send(new QuestStartedComposer(session, nextQuest, _questManager));
         return Task.CompletedTask;
     }
 }

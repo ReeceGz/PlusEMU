@@ -43,7 +43,7 @@ internal class JoinGroupEvent : IPacketEvent
         }
         else
         {
-            session.Send(new GroupFurniConfigComposer(_groupManager.GetGroupsForUser(session.GetHabbo().Id)));
+            session.Send(new GroupFurniConfigComposer(_groupManager.GetGroupsForUser(session.GetHabbo().Id), _groupManager));
             session.Send(new GroupInfoComposer(group, session, _userDataFactory));
             if (session.GetHabbo().CurrentRoom != null)
                 session.GetHabbo().CurrentRoom.SendPacket(new RefreshFavouriteGroupComposer(session.GetHabbo().Id));

@@ -45,7 +45,7 @@ public class PlusEnvironment : IPlusEnvironment
     private readonly IFigureDataManager _figureManager;
     private readonly IItemDataManager _itemDataManager;
 
-    public static DateTime ServerStarted;
+    public DateTime ServerStarted { get; private set; }
 
     private static readonly List<char> Allowedchars = new(new[]
     {
@@ -338,6 +338,7 @@ public class PlusEnvironment : IPlusEnvironment
     IFigureDataManager IPlusEnvironment.FigureManager => _figureManager;
     ICollection<Habbo> IPlusEnvironment.CachedUsers => CachedUsers;
     bool IPlusEnvironment.RemoveFromCache(int id, out Habbo data) => RemoveFromCache(id, out data);
+    DateTime IPlusEnvironment.ServerStarted => ServerStarted;
 
     [Obsolete("Use dependency injection instead and inject required services.")]
     public static IGame Game => Instance!._game;
