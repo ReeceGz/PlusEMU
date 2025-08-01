@@ -11,17 +11,19 @@ internal class CreateFlatEvent : IPacketEvent
     private readonly IWordFilterManager _wordFilterManager;
     private readonly IRoomManager _roomManager;
     private readonly INavigatorManager _navigatorManager;
+    private readonly IRoomDataLoader _roomDataLoader;
 
-    public CreateFlatEvent(IWordFilterManager wordFilterManager, IRoomManager roomManager, INavigatorManager navigatorManager)
+    public CreateFlatEvent(IWordFilterManager wordFilterManager, IRoomManager roomManager, INavigatorManager navigatorManager, IRoomDataLoader roomDataLoader)
     {
         _wordFilterManager = wordFilterManager;
         _roomManager = roomManager;
         _navigatorManager = navigatorManager;
+        _roomDataLoader = roomDataLoader;
     }
 
     public Task Parse(GameClient session, IIncomingPacket packet)
     {
-        var rooms = RoomFactory.GetRoomsDataByOwnerSortByName(session.GetHabbo().Id);
+        var rooms = _roomDataLoader.GetRoomsDataByOwnerSortByName(session.GetHabbo().Id);
         if (rooms.Count >= 500)
         {
             session.Send(new CanCreateRoomComposer(true, 500));

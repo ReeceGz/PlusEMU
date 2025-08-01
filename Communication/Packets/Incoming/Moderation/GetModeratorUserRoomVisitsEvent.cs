@@ -10,11 +10,13 @@ internal class GetModeratorUserRoomVisitsEvent : IPacketEvent
 {
     private readonly IGameClientManager _clientManager;
     private readonly IDatabase _database;
+    private readonly IRoomDataLoader _roomDataLoader;
 
-    public GetModeratorUserRoomVisitsEvent(IGameClientManager clientManager, IDatabase database)
+    public GetModeratorUserRoomVisitsEvent(IGameClientManager clientManager, IDatabase database, IRoomDataLoader roomDataLoader)
     {
         _clientManager = clientManager;
         _database = database;
+        _roomDataLoader = roomDataLoader;
     }
 
     public Task Parse(GameClient session, IIncomingPacket packet)
@@ -35,7 +37,7 @@ internal class GetModeratorUserRoomVisitsEvent : IPacketEvent
             {
                 foreach (DataRow row in table.Rows)
                 {
-                    if (!RoomFactory.TryGetData(Convert.ToUInt32(row["room_id"]), out var data))
+                    if (!_roomDataLoader.TryGetData(Convert.ToUInt32(row["room_id"]), out var data))
                         continue;
                     if (!visits.ContainsKey(Convert.ToDouble(row["entry_timestamp"])))
                         visits.Add(Convert.ToDouble(row["entry_timestamp"]), data);

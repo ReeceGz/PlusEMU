@@ -8,16 +8,18 @@ namespace Plus.Communication.Packets.Incoming.Navigator;
 public class AddFavouriteRoomEvent : IPacketEvent
 {
     private readonly IDatabase _database;
+    private readonly IRoomDataLoader _roomDataLoader;
 
-    public AddFavouriteRoomEvent(IDatabase database)
+    public AddFavouriteRoomEvent(IDatabase database, IRoomDataLoader roomDataLoader)
     {
         _database = database;
+        _roomDataLoader = roomDataLoader;
     }
 
     public Task Parse(GameClient session, IIncomingPacket packet)
     {
         var roomId = packet.ReadUInt();
-        if (!RoomFactory.TryGetData(roomId, out var data))
+        if (!_roomDataLoader.TryGetData(roomId, out var data))
             return Task.CompletedTask;
         if (data == null || session.GetHabbo().FavoriteRooms.Count >= 30 || session.GetHabbo().FavoriteRooms.Contains(roomId))
         {
