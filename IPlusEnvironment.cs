@@ -21,4 +21,5 @@ public interface IPlusEnvironment
     IFigureDataManager FigureManager { get; }
     ICollection<Habbo> CachedUsers { get; }
     bool RemoveFromCache(int id, out Habbo data);
+    DateTime ServerStarted { get; }
 }

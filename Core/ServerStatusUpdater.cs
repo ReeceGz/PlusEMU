@@ -2,6 +2,7 @@
 using Plus.Database;
 using Plus.HabboHotel.GameClients;
 using Plus.HabboHotel.Rooms;
+using Plus;
 
 namespace Plus.Core;
 
@@ -12,13 +13,15 @@ public class ServerStatusUpdater : IDisposable, IServerStatusUpdater
     private readonly IDatabase _database;
     private readonly IGameClientManager _gameClientManager;
     private readonly IRoomManager _roomManager;
+    private readonly IPlusEnvironment _environment;
 
-    public ServerStatusUpdater(ILogger<ServerStatusUpdater> logger, IDatabase database, IGameClientManager gameClientManager, IRoomManager roomManager)
+    public ServerStatusUpdater(ILogger<ServerStatusUpdater> logger, IDatabase database, IGameClientManager gameClientManager, IRoomManager roomManager, IPlusEnvironment environment)
     {
         _logger = logger;
         _database = database;
         _gameClientManager = gameClientManager;
         _roomManager = roomManager;
+        _environment = environment;
     }
 
     private Timer _timer;
@@ -47,7 +50,7 @@ public class ServerStatusUpdater : IDisposable, IServerStatusUpdater
 
     private void UpdateOnlineUsers()
     {
-        var uptime = DateTime.Now - PlusEnvironment.ServerStarted;
+        var uptime = DateTime.Now - _environment.ServerStarted;
         var usersOnline = _gameClientManager.Count;
         var roomCount = _roomManager.Count;
         Console.Title = $"Plus Emulator - {usersOnline} users online - {roomCount} rooms loaded - {uptime.Days} day(s) {uptime.Hours} hour(s) uptime";
