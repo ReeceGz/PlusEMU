@@ -7,13 +7,15 @@ public class MarketPlaceOffersComposer : IServerPacket
 {
     private readonly Dictionary<uint, MarketOffer> _dictionary;
     private readonly Dictionary<uint, int> _dictionary2;
+    private readonly IMarketplaceManager _marketplace;
     public uint MessageId => ServerPacketHeader.MarketPlaceOffersComposer;
 
-    public MarketPlaceOffersComposer(Dictionary<uint, MarketOffer> dictionary, Dictionary<uint, int> dictionary2)
+    public MarketPlaceOffersComposer(Dictionary<uint, MarketOffer> dictionary, Dictionary<uint, int> dictionary2, IMarketplaceManager marketplace)
         : base()
     {
         _dictionary = dictionary;
         _dictionary2 = dictionary2;
+        _marketplace = marketplace;
     }
 
     public void Compose(IOutgoingPacket packet)
@@ -31,7 +33,7 @@ public class MarketPlaceOffersComposer : IServerPacket
             packet.WriteUInteger(value.LimitedStack);
             packet.WriteInteger(value.TotalPrice);
             packet.WriteInteger(0);
-            packet.WriteInteger(PlusEnvironment.Game.Catalog.Marketplace.AvgPriceForSprite((int)value.SpriteId));
+            packet.WriteInteger(_marketplace.AvgPriceForSprite((int)value.SpriteId));
             packet.WriteInteger(_dictionary2[value.SpriteId]);
         }
         packet.WriteInteger(_dictionary.Count); //Item count to show how many were found.

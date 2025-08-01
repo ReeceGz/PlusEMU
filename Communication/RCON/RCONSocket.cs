@@ -39,7 +39,7 @@ public class RconSocket : IRconSocket
             var socket = ((Socket)iAr.AsyncState).EndAccept(iAr);
             var ip = socket.RemoteEndPoint.ToString().Split(':')[0];
             if (_allowedConnections.Contains(ip))
-                new RconConnection(socket);
+                new RconConnection(socket, this);
             else
                 socket.Close();
         }

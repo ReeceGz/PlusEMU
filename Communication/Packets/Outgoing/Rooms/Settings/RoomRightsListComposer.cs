@@ -1,16 +1,19 @@
 ﻿using Plus.HabboHotel.GameClients;
 using Plus.HabboHotel.Rooms;
+using Plus.HabboHotel.Cache;
 
 namespace Plus.Communication.Packets.Outgoing.Rooms.Settings;
 
 public class RoomRightsListComposer : IServerPacket
 {
     private readonly Room _instance;
+    private readonly ICacheManager _cacheManager;
     public uint MessageId => ServerPacketHeader.RoomRightsListComposer;
 
-    public RoomRightsListComposer(Room instance)
+    public RoomRightsListComposer(Room instance, ICacheManager cacheManager)
     {
         _instance = instance;
+        _cacheManager = cacheManager;
     }
 
     public void Compose(IOutgoingPacket packet)
@@ -19,7 +22,7 @@ public class RoomRightsListComposer : IServerPacket
         packet.WriteInteger(_instance.UsersWithRights.Count);
         foreach (var id in _instance.UsersWithRights.ToList())
         {
-            var data = PlusEnvironment.Game.CacheManager.GenerateUser(id);
+            var data = _cacheManager.GenerateUser(id);
             if (data == null)
             {
                 packet.WriteInteger(0);

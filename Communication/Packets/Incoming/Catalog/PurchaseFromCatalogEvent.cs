@@ -29,6 +29,7 @@ public class PurchaseFromCatalogEvent : IPacketEvent
     private readonly IItemDataManager _itemManager;
     private readonly IBadgeManager _badgeManager;
     private readonly IItemFactory _itemFactory;
+    private readonly IBotFactory _botFactory;
 
     public PurchaseFromCatalogEvent(ICatalogManager catalogManager,
         IDatabase database,
@@ -36,7 +37,8 @@ public class PurchaseFromCatalogEvent : IPacketEvent
         IAchievementManager achievementManager,
         IItemDataManager itemManager,
         IBadgeManager badgeManager,
-        IItemFactory itemFactory)
+        IItemFactory itemFactory,
+        IBotFactory botFactory)
     {
         _catalogManager = catalogManager;
         _database = database;
@@ -45,6 +47,7 @@ public class PurchaseFromCatalogEvent : IPacketEvent
         _itemManager = itemManager;
         _badgeManager = badgeManager;
         _itemFactory = itemFactory;
+        _botFactory = botFactory;
     }
     public async Task Parse(GameClient session, IIncomingPacket packet)
     {
@@ -310,7 +313,7 @@ public class PurchaseFromCatalogEvent : IPacketEvent
                     session.Send(new AvatarEffectAddedComposer(item.Definition.SpriteId, 3600));
                 break;
             case "r":
-                var bot = BotUtility.CreateBot(item.Definition, session.GetHabbo().Id);
+                var bot = _botFactory.CreateBot(item.Definition, session.GetHabbo().Id);
                 if (bot != null)
                 {
                     session.GetHabbo().Inventory.Bots.AddBot(bot);
