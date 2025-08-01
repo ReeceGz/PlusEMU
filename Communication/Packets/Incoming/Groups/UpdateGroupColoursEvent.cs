@@ -6,17 +6,20 @@ using Plus.HabboHotel.Groups;
 using Plus.HabboHotel.Items;
 using Dapper;
 
+using Plus.HabboHotel.Users.UserData;
 namespace Plus.Communication.Packets.Incoming.Groups;
 
 internal class UpdateGroupColoursEvent : IPacketEvent
 {
     private readonly IGroupManager _groupManager;
     private readonly IDatabase _database;
+    private readonly IUserDataFactory _userDataFactory;
 
-    public UpdateGroupColoursEvent(IGroupManager groupManager, IDatabase database)
+    public UpdateGroupColoursEvent(IGroupManager groupManager, IDatabase database, IUserDataFactory userDataFactory)
     {
         _groupManager = groupManager;
         _database = database;
+        _userDataFactory = userDataFactory;
     }
     public Task Parse(GameClient session, IIncomingPacket packet)
     {
@@ -34,7 +37,7 @@ internal class UpdateGroupColoursEvent : IPacketEvent
         }
         group.Colour1 = mainColour;
         group.Colour2 = secondaryColour;
-        session.Send(new GroupInfoComposer(group, session));
+        session.Send(new GroupInfoComposer(group, session, _userDataFactory));
         if (session.GetHabbo().CurrentRoom != null)
         {
             foreach (var item in session.GetHabbo().CurrentRoom.GetRoomItemHandler().GetFloor.ToList())

@@ -4,14 +4,17 @@ using Plus.HabboHotel.Groups;
 using Plus.HabboHotel.Items;
 
 namespace Plus.Communication.Packets.Incoming.Rooms.Furni;
+using Plus.HabboHotel.Users.UserData;
 
 internal class GetGroupFurniSettingsEvent : IPacketEvent
 {
     private readonly IGroupManager _groupManager;
+    private readonly IUserDataFactory _userDataFactory;
 
-    public GetGroupFurniSettingsEvent(IGroupManager groupManager)
+    public GetGroupFurniSettingsEvent(IGroupManager groupManager, IUserDataFactory userDataFactory)
     {
         _groupManager = groupManager;
+        _userDataFactory = userDataFactory;
     }
 
     public Task Parse(GameClient session, IIncomingPacket packet)
@@ -28,7 +31,7 @@ internal class GetGroupFurniSettingsEvent : IPacketEvent
         if (!_groupManager.TryGetGroup(groupId, out var group))
             return Task.CompletedTask;
         session.Send(new GroupFurniSettingsComposer(group, itemId, session.GetHabbo().Id));
-        session.Send(new GroupInfoComposer(group, session));
+        session.Send(new GroupInfoComposer(group, session, _userDataFactory));
         return Task.CompletedTask;
     }
 }

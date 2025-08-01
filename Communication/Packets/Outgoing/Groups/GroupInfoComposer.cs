@@ -1,5 +1,6 @@
 ﻿using Plus.HabboHotel.GameClients;
 using Plus.HabboHotel.Groups;
+using Plus.HabboHotel.Users.UserData;
 
 namespace Plus.Communication.Packets.Outgoing.Groups;
 
@@ -8,13 +9,15 @@ public class GroupInfoComposer : IServerPacket
     private readonly Group _group;
     private readonly GameClient _session;
     private readonly bool _newWindow;
+    private readonly IUserDataFactory _userDataFactory;
 
     public uint MessageId => ServerPacketHeader.GroupInfoComposer;
 
-    public GroupInfoComposer(Group group, GameClient session, bool newWindow = false)
+    public GroupInfoComposer(Group group, GameClient session, IUserDataFactory userDataFactory, bool newWindow = false)
     {
         _group = @group;
         _session = session;
+        _userDataFactory = userDataFactory;
         _newWindow = newWindow;
     }
 
@@ -35,7 +38,7 @@ public class GroupInfoComposer : IServerPacket
         packet.WriteString($"{origin.Day}-{origin.Month}-{origin.Year}");
         packet.WriteBoolean(_group.CreatorId == _session.GetHabbo().Id);
         packet.WriteBoolean(_group.IsAdmin(_session.GetHabbo().Id)); // admin
-        packet.WriteString(PlusEnvironment.GetUsernameById(_group.CreatorId));
+        packet.WriteString(_userDataFactory.GetUsernameForHabboById(_group.CreatorId).GetAwaiter().GetResult());
         packet.WriteBoolean(_newWindow); // Show group info
         packet.WriteBoolean(_group.AdminOnlyDeco == 0); // Any user can place furni in home room
         packet.WriteInteger(_group.CreatorId == _session.GetHabbo().Id ? _group.RequestCount :
