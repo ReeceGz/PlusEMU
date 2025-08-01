@@ -7,12 +7,14 @@ public class QuestStartedComposer : IServerPacket
 {
     private readonly GameClient _session;
     private readonly Quest _quest;
+    private readonly IQuestManager _questManager;
     public uint MessageId => ServerPacketHeader.QuestStartedComposer;
 
-    public QuestStartedComposer(GameClient session, Quest quest)
+    public QuestStartedComposer(GameClient session, Quest quest, IQuestManager questManager)
     {
         _session = session;
         _quest = quest;
+        _questManager = questManager;
     }
 
     public void Compose(IOutgoingPacket packet)
@@ -24,7 +26,7 @@ public class QuestStartedComposer : IServerPacket
     {
         if (packet == null || session == null)
             return;
-        var amountInCat = PlusEnvironment.Game.QuestManager.GetAmountOfQuestsInCategory(quest.Category);
+        var amountInCat = _questManager.GetAmountOfQuestsInCategory(quest.Category);
         var number = quest == null ? amountInCat : quest.Number - 1;
         var userProgress = quest == null ? 0 : session.GetHabbo().GetQuestProgress(quest.Id);
         if (quest != null && quest.IsCompleted(userProgress))

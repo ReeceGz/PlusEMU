@@ -8,10 +8,12 @@ namespace Plus.Communication.Packets.Incoming.Rooms.AI.Pets.Horse;
 internal class ModifyWhoCanRideHorseEvent : RoomPacketEvent
 {
     private readonly IDatabase _database;
+    private readonly IRoomManager _roomManager;
 
-    public ModifyWhoCanRideHorseEvent(IDatabase database)
+    public ModifyWhoCanRideHorseEvent(IDatabase database, IRoomManager roomManager)
     {
         _database = database;
+        _roomManager = roomManager;
     }
 
     public override Task Parse(Room room, GameClient session, IIncomingPacket packet)
@@ -24,7 +26,7 @@ internal class ModifyWhoCanRideHorseEvent : RoomPacketEvent
         {
             dbClient.RunQuery($"UPDATE `bots_petdata` SET `anyone_ride` = '{pet.PetData.AnyoneCanRide}' WHERE `id` = '{petId}' LIMIT 1");
         }
-        room.SendPacket(new PetInformationComposer(pet.PetData));
+        room.SendPacket(new PetInformationComposer(pet.PetData, _roomManager));
         return Task.CompletedTask;
     }
 }

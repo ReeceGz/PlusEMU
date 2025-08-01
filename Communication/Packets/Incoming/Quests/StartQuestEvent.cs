@@ -29,7 +29,7 @@ internal class StartQuestEvent : IPacketEvent
         }
         session.GetHabbo().HabboStats.QuestId = quest.Id;
         _questManager.GetList(session, null);
-        session.Send(new QuestStartedComposer(session, quest));
+        session.Send(new QuestStartedComposer(session, quest, _questManager));
         return Task.CompletedTask;
     }
 }
